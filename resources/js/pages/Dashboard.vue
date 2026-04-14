@@ -31,6 +31,8 @@ defineOptions({
     <Head title="Dashboard Académico" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-6">
+
+        
         <!-- Dashboard para Autoridad -->
         <div v-if="academic.role === 'autoridad'" class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Link :href="students.index.url({ current_team: currentTeam?.slug ?? '' })" class="block rounded-2xl border p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-blue-500/50 transition">
