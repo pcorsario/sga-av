@@ -4,6 +4,8 @@ import { dashboard } from '@/routes';
 import grades from '@/routes/grades';
 import teachers from '@/routes/teachers';
 import courses from '@/routes/courses';
+import students from '@/routes/students';
+import parentsRoute from '@/routes/parents';
 import type { Team } from '@/types';
 
 const props = defineProps<{
@@ -30,12 +32,17 @@ defineOptions({
 
     <div class="flex h-full flex-1 flex-col gap-6 p-6">
         <!-- Dashboard para Autoridad -->
-        <div v-if="academic.role === 'autoridad'" class="grid gap-6 md:grid-cols-3">
-            <div class="rounded-2xl border p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md transition">
+        <div v-if="academic.role === 'autoridad'" class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Link :href="students.index.url({ current_team: currentTeam?.slug ?? '' })" class="block rounded-2xl border p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-blue-500/50 transition">
                 <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Estudiantes</h3>
                 <p class="text-4xl font-extrabold mt-2 text-zinc-900 dark:text-zinc-50">{{ academic.stats.students_count }}</p>
-                <div class="mt-4 text-xs text-blue-600 font-medium">Gestionar alumnos →</div>
-            </div>
+                <div class="mt-4 text-xs text-blue-600 font-medium flex items-center gap-1">
+                    Gestionar alumnos 
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </Link>
             <Link :href="teachers.index.url({ current_team: currentTeam?.slug ?? '' })" class="block rounded-2xl border p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-blue-500/50 transition">
                 <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Profesores</h3>
                 <p class="text-4xl font-extrabold mt-2 text-zinc-900 dark:text-zinc-50">{{ academic.stats.teachers_count }}</p>
@@ -51,6 +58,16 @@ defineOptions({
                 <p class="text-4xl font-extrabold mt-2 text-zinc-900 dark:text-zinc-50">{{ academic.stats.courses_count }}</p>
                 <div class="mt-4 text-xs text-blue-600 font-medium flex items-center gap-1">
                     Ver malla curricular
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </Link>
+            <Link :href="parentsRoute.index.url({ current_team: currentTeam?.slug ?? '' })" class="block rounded-2xl border p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-blue-500/50 transition">
+                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Padres Familia</h3>
+                <p class="text-4xl font-extrabold mt-2 text-zinc-900 dark:text-zinc-50">{{ academic.stats.parents_count }}</p>
+                <div class="mt-4 text-xs text-blue-600 font-medium flex items-center gap-1">
+                    Representantes
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>

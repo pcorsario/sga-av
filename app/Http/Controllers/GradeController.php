@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 class GradeController extends Controller
 {
-    public function edit(Request $request, CourseSubject $courseSubject)
+    public function edit(Request $request, string $current_team, CourseSubject $courseSubject)
     {
         $user = $request->user();
 
@@ -50,7 +50,7 @@ class GradeController extends Controller
         ]);
     }
 
-    public function update(Request $request, CourseSubject $courseSubject)
+    public function update(Request $request, string $current_team, CourseSubject $courseSubject)
     {
         $user = $request->user();
 

@@ -55,9 +55,13 @@ class TeacherController extends Controller
 
         // Registrar la pertenencia al equipo actual.
         $team = Team::where('slug', $current_team)->first();
-        if ($team && ! $team->members->contains($teacher)) {
-            $team->members()->attach($teacher, ['role' => 'editor']);
-            $teacher->switchTeam($team);
+        if ($team) {
+            if (! $team->members()->where('user_id', $teacher->id)->exists()) {
+                $team->members()->attach($teacher->id, ['role' => 'member']);
+            }
+            $teacher->forceFill([
+                'current_team_id' => $team->id,
+            ])->save();
         }
 
         return redirect()->route('teachers.index', ['current_team' => $current_team])
