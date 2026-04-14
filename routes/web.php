@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AcademicDashboardController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\GradeController;
+use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -12,7 +16,23 @@ Route::inertia('/', 'Welcome', [
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
     ->group(function () {
-        Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+        Route::get('dashboard', AcademicDashboardController::class)->name('dashboard');
+
+        // Rutas Académicas
+        Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('grades.edit');
+        Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('grades.update');
+
+        // Malla Curricular (Cursos y Materias)
+        Route::get('courses/{course}/subjects', [CourseController::class, 'subjects'])->name('courses.subjects');
+        Route::post('courses/{course}/subjects', [CourseController::class, 'updateSubjects'])->name('courses.subjects.update');
+        Route::resource('courses', CourseController::class);
+
+        // Nómina de Profesores
+        Route::get('teachers/{teacher}/subjects', [TeacherController::class, 'subjects'])->name('teachers.subjects');
+        Route::post('teachers/{teacher}/subjects', [TeacherController::class, 'updateSubjects'])->name('teachers.subjects.update');
+        Route::resource('teachers', TeacherController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+            ->parameters(['teachers' => 'teacher']);
     });
 
 Route::middleware(['auth'])->group(function () {

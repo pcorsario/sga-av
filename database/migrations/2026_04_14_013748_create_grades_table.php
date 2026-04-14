@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('course_subject_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
-            $table->decimal('score', 5, 2);
+            $table->decimal('t1', 5, 2)->nullable();
+            $table->decimal('t2', 5, 2)->nullable();
+            $table->decimal('t3', 5, 2)->nullable();
             $table->text('observations')->nullable();
             $table->timestamps();
         });
