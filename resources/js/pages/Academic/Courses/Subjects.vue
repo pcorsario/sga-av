@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Head, useForm, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import { dashboard } from '@/routes';
 import coursesRoutes from '@/routes/courses';
 import subjectsRoutes from '@/routes/subjects';
 import type { Team } from '@/types';
-import { ref } from 'vue';
 
 const props = defineProps<{
     currentTeam?: Team | null;

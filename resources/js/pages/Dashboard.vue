@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { dashboard } from '@/routes';
-import grades from '@/routes/grades';
-import teachers from '@/routes/teachers';
 import courses from '@/routes/courses';
-import students from '@/routes/students';
+import grades from '@/routes/grades';
 import parentsRoute from '@/routes/parents';
+import students from '@/routes/students';
+import teachers from '@/routes/teachers';
 import type { Team } from '@/types';
 
 const props = defineProps<{

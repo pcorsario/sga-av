@@ -30,4 +30,9 @@ class CourseSubject extends Model
     {
         return $this->hasMany(Grade::class);
     }
+
+    public function insumoNames()
+    {
+        return $this->hasMany(InsumoName::class);
+    }
 }

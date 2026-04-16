@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, useForm, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { dashboard } from '@/routes';
 import teachersRoutes from '@/routes/teachers';
 import type { Team } from '@/types';
-import { computed } from 'vue';
 
 const props = defineProps<{
     currentTeam?: Team | null;
@@ -34,11 +34,14 @@ const groupedSubjects = computed(() => {
     const groups: Record<string, any[]> = {};
     props.courseSubjects.forEach(cs => {
         const courseName = cs.course.name;
+
         if (!groups[courseName]) {
             groups[courseName] = [];
         }
+
         groups[courseName].push(cs);
     });
+
     return groups;
 });
 
