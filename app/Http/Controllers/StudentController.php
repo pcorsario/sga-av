@@ -23,11 +23,15 @@ class StudentController extends Controller
             abort(403, 'No autorizado.');
         }
 
+        // $students = User::with(['enrollments.course'])
+        //     ->orderBy('created_at', 'desc')
+        //     ->paginate(15);
+
         $students = User::role(RoleEnum::Estudiante->value)
             ->with(['enrollments.course'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
-
+        // dd($students->toArray());
         return Inertia::render('Academic/Students/Index', [
             'students' => $students,
         ]);

@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(EnrollmentSeeder::class);
         $this->call(RolesAndPermissionsSeeder::class);
 
         $admin = User::factory()->create([
@@ -42,5 +43,6 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
         $student->assignRole(\App\Enums\RoleEnum::Estudiante->value);
+        
     }
 }

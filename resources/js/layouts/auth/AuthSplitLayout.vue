@@ -23,7 +23,7 @@ defineProps<{
             />
 
             <!-- Capa oscura -->
-            <div class="absolute inset-0 bg-purple-950/55" />
+            <div class="absolute inset-0" />
 
             <!-- Desenfoque suave -->
             <div class="absolute inset-0 backdrop-purple-[2px]" />
@@ -51,10 +51,10 @@ defineProps<{
                             class="h-14 w-14 rounded-full border-2 border-white/30 bg-white object-cover shadow-lg"
                         />
                         <div>
-                            <p class="text-xs uppercase tracking-[0.35em] text-white/70">
+                            <p class="text-xs uppercase tracking-[0.35em] text-purple/70">
                                 Sistema Académico
                             </p>
-                            <h2 class="text-lg font-semibold text-white">
+                            <h2 class="text-lg font-semibold text-purple/70">
                                 SGA Alessandro Volta
                             </h2>
                         </div>
@@ -68,7 +68,8 @@ defineProps<{
                     </p>
 
                     <h1 class="text-4xl font-semibold leading-tight text-white xl:text-5xl">
-                        {{ name ?? 'Alessandro Volta' }}
+                        <!-- {{ name ?? 'Alessandro Volta' }} -->
+                          Alessandro Volta
                     </h1>
 
                     <p class="mt-4 text-sm leading-7 text-white/80">
