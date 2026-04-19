@@ -1,13 +1,26 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 import { dashboard } from '@/routes';
 import studentsRoutes from '@/routes/students';
 import type { Team } from '@/types';
+import { debounce } from 'lodash';
 
 const props = defineProps<{
     currentTeam?: Team | null;
     students: any;
+    filters?: { search?: string };
 }>();
+
+const search = ref(props.filters?.search || '');
+
+watch(search, debounce((value) => {
+    router.get(
+        studentsRoutes.index.url({ current_team: props.currentTeam?.slug ?? '' }),
+        { search: value },
+        { preserveState: true, replace: true }
+    );
+}, 500));
 
 defineOptions({
     layout: (props: { currentTeam?: Team | null }) => ({
@@ -26,7 +39,7 @@ defineOptions({
 </script>
 
 <template>
-    <Head title="Estudiantes y Matrículas" />
+    <Head title="Directorio Estudiantil" />
 
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -46,10 +59,28 @@ defineOptions({
             </Link>
         </div>
 
-        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden relative">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
-                    <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 uppercase tracking-wider text-xs">
+        <div class="space-y-4">
+            <!-- Barra de Herramientas / Búsqueda -->
+            <div class="flex items-center justify-between gap-4">
+                <div class="relative flex-1 max-w-md">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-zinc-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input 
+                        v-model="search"
+                        type="text" 
+                        placeholder="Buscar por nombre o correo electrónico..." 
+                        class="block w-full pl-11 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm dark:text-zinc-100"
+                    >
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden relative">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 uppercase tracking-wider text-xs">
                         <tr>
                             <th class="px-6 py-4 font-bold flex items-center gap-2">
                                 Estudiante
@@ -128,6 +159,7 @@ defineOptions({
                         v-html="link.label"
                     />
                  </template>
+            </div>
             </div>
         </div>
     </div>

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CoursesTemplateExport;
+use App\Imports\CoursesImport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Enums\RoleEnum;
 use App\Models\Course;
 use App\Models\CourseSubject;
@@ -11,6 +14,37 @@ use Inertia\Inertia;
 
 class CourseController extends Controller
 {
+    /**
+     * Download the Excel template for courses.
+     */
+    public function exportTemplate()
+    {
+        return Excel::download(new CoursesTemplateExport, 'plantilla_cursos.xlsx');
+    }
+
+    /**
+     * Import courses from an Excel file.
+     */
+    public function importExcel(Request $request, string $current_team)
+    {
+        if (! $request->user()->hasRole(RoleEnum::Autoridad->value)) {
+            abort(403, 'No autorizado.');
+        }
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            Excel::import(new CoursesImport, $request->file('file'));
+            
+            return redirect()->route('courses.index', ['current_team' => $current_team])
+                ->with('status', 'Cursos importados exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['file' => 'Error al importar archivo: ' . $e->getMessage()]);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */

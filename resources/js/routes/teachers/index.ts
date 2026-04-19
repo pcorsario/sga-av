@@ -83,8 +83,181 @@ dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 dashboard.form = dashboardForm
 
 /**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+export const exportTemplate = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportTemplate.url(args, options),
+    method: 'get',
+})
+
+exportTemplate.definition = {
+    methods: ["get","head"],
+    url: '/{current_team}/teachers/export-template',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+exportTemplate.url = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { current_team: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            current_team: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        current_team: args.current_team,
+    }
+
+    return exportTemplate.definition.url
+            .replace('{current_team}', parsedArgs.current_team.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+exportTemplate.get = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportTemplate.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+exportTemplate.head = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportTemplate.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+const exportTemplateForm = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportTemplate.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+exportTemplateForm.get = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportTemplate.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\TeacherController::exportTemplate
+* @see app/Http/Controllers/TeacherController.php:23
+* @route '/{current_team}/teachers/export-template'
+*/
+exportTemplateForm.head = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportTemplate.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportTemplate.form = exportTemplateForm
+
+/**
+* @see \App\Http\Controllers\TeacherController::importExcel
+* @see app/Http/Controllers/TeacherController.php:31
+* @route '/{current_team}/teachers/import-excel'
+*/
+export const importExcel = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: importExcel.url(args, options),
+    method: 'post',
+})
+
+importExcel.definition = {
+    methods: ["post"],
+    url: '/{current_team}/teachers/import-excel',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\TeacherController::importExcel
+* @see app/Http/Controllers/TeacherController.php:31
+* @route '/{current_team}/teachers/import-excel'
+*/
+importExcel.url = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { current_team: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            current_team: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        current_team: args.current_team,
+    }
+
+    return importExcel.definition.url
+            .replace('{current_team}', parsedArgs.current_team.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\TeacherController::importExcel
+* @see app/Http/Controllers/TeacherController.php:31
+* @route '/{current_team}/teachers/import-excel'
+*/
+importExcel.post = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: importExcel.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\TeacherController::importExcel
+* @see app/Http/Controllers/TeacherController.php:31
+* @route '/{current_team}/teachers/import-excel'
+*/
+const importExcelForm = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: importExcel.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\TeacherController::importExcel
+* @see app/Http/Controllers/TeacherController.php:31
+* @route '/{current_team}/teachers/import-excel'
+*/
+importExcelForm.post = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: importExcel.url(args, options),
+    method: 'post',
+})
+
+importExcel.form = importExcelForm
+
+/**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 export const subjects = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -99,7 +272,7 @@ subjects.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 subjects.url = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -127,7 +300,7 @@ subjects.url = (args: { current_team: string | number, teacher: number | { id: n
 
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 subjects.get = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -137,7 +310,7 @@ subjects.get = (args: { current_team: string | number, teacher: number | { id: n
 
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 subjects.head = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -147,7 +320,7 @@ subjects.head = (args: { current_team: string | number, teacher: number | { id: 
 
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 const subjectsForm = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +330,7 @@ const subjectsForm = (args: { current_team: string | number, teacher: number | {
 
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 subjectsForm.get = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -167,7 +340,7 @@ subjectsForm.get = (args: { current_team: string | number, teacher: number | { i
 
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
-* @see app/Http/Controllers/TeacherController.php:107
+* @see app/Http/Controllers/TeacherController.php:152
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 subjectsForm.head = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -184,7 +357,7 @@ subjects.form = subjectsForm
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 export const index = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +372,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 index.url = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -226,7 +399,7 @@ index.url = (args: { current_team: string | number } | [current_team: string | n
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 index.get = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -236,7 +409,7 @@ index.get = (args: { current_team: string | number } | [current_team: string | n
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 index.head = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -246,7 +419,7 @@ index.head = (args: { current_team: string | number } | [current_team: string | 
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 const indexForm = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -256,7 +429,7 @@ const indexForm = (args: { current_team: string | number } | [current_team: stri
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 indexForm.get = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -266,7 +439,7 @@ indexForm.get = (args: { current_team: string | number } | [current_team: string
 
 /**
 * @see \App\Http\Controllers\TeacherController::index
-* @see app/Http/Controllers/TeacherController.php:17
+* @see app/Http/Controllers/TeacherController.php:49
 * @route '/{current_team}/teachers'
 */
 indexForm.head = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -283,7 +456,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 export const create = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -298,7 +471,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 create.url = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -325,7 +498,7 @@ create.url = (args: { current_team: string | number } | [current_team: string | 
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 create.get = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -335,7 +508,7 @@ create.get = (args: { current_team: string | number } | [current_team: string | 
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 create.head = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -345,7 +518,7 @@ create.head = (args: { current_team: string | number } | [current_team: string |
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 const createForm = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -355,7 +528,7 @@ const createForm = (args: { current_team: string | number } | [current_team: str
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 createForm.get = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -365,7 +538,7 @@ createForm.get = (args: { current_team: string | number } | [current_team: strin
 
 /**
 * @see \App\Http\Controllers\TeacherController::create
-* @see app/Http/Controllers/TeacherController.php:31
+* @see app/Http/Controllers/TeacherController.php:76
 * @route '/{current_team}/teachers/create'
 */
 createForm.head = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -382,7 +555,7 @@ create.form = createForm
 
 /**
 * @see \App\Http\Controllers\TeacherController::store
-* @see app/Http/Controllers/TeacherController.php:38
+* @see app/Http/Controllers/TeacherController.php:83
 * @route '/{current_team}/teachers'
 */
 export const store = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -397,7 +570,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::store
-* @see app/Http/Controllers/TeacherController.php:38
+* @see app/Http/Controllers/TeacherController.php:83
 * @route '/{current_team}/teachers'
 */
 store.url = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -424,7 +597,7 @@ store.url = (args: { current_team: string | number } | [current_team: string | n
 
 /**
 * @see \App\Http\Controllers\TeacherController::store
-* @see app/Http/Controllers/TeacherController.php:38
+* @see app/Http/Controllers/TeacherController.php:83
 * @route '/{current_team}/teachers'
 */
 store.post = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -434,7 +607,7 @@ store.post = (args: { current_team: string | number } | [current_team: string | 
 
 /**
 * @see \App\Http\Controllers\TeacherController::store
-* @see app/Http/Controllers/TeacherController.php:38
+* @see app/Http/Controllers/TeacherController.php:83
 * @route '/{current_team}/teachers'
 */
 const storeForm = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -444,7 +617,7 @@ const storeForm = (args: { current_team: string | number } | [current_team: stri
 
 /**
 * @see \App\Http\Controllers\TeacherController::store
-* @see app/Http/Controllers/TeacherController.php:38
+* @see app/Http/Controllers/TeacherController.php:83
 * @route '/{current_team}/teachers'
 */
 storeForm.post = (args: { current_team: string | number } | [current_team: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -456,7 +629,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 export const edit = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -471,7 +644,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 edit.url = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -499,7 +672,7 @@ edit.url = (args: { current_team: string | number, teacher: number | { id: numbe
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 edit.get = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -509,7 +682,7 @@ edit.get = (args: { current_team: string | number, teacher: number | { id: numbe
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 edit.head = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -519,7 +692,7 @@ edit.head = (args: { current_team: string | number, teacher: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 const editForm = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -529,7 +702,7 @@ const editForm = (args: { current_team: string | number, teacher: number | { id:
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 editForm.get = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -539,7 +712,7 @@ editForm.get = (args: { current_team: string | number, teacher: number | { id: n
 
 /**
 * @see \App\Http\Controllers\TeacherController::edit
-* @see app/Http/Controllers/TeacherController.php:71
+* @see app/Http/Controllers/TeacherController.php:116
 * @route '/{current_team}/teachers/{teacher}/edit'
 */
 editForm.head = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -556,7 +729,7 @@ edit.form = editForm
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 export const update = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -571,7 +744,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 update.url = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -599,7 +772,7 @@ update.url = (args: { current_team: string | number, teacher: number | { id: num
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 update.put = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -609,7 +782,7 @@ update.put = (args: { current_team: string | number, teacher: number | { id: num
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 update.patch = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -619,7 +792,7 @@ update.patch = (args: { current_team: string | number, teacher: number | { id: n
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 const updateForm = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -634,7 +807,7 @@ const updateForm = (args: { current_team: string | number, teacher: number | { i
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 updateForm.put = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -649,7 +822,7 @@ updateForm.put = (args: { current_team: string | number, teacher: number | { id:
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:84
+* @see app/Http/Controllers/TeacherController.php:129
 * @route '/{current_team}/teachers/{teacher}'
 */
 updateForm.patch = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -750,6 +923,8 @@ destroy.form = destroyForm
 const teachers = {
     dashboard: Object.assign(dashboard, dashboard),
     grades: Object.assign(grades, grades),
+    exportTemplate: Object.assign(exportTemplate, exportTemplate),
+    importExcel: Object.assign(importExcel, importExcel),
     subjects: Object.assign(subjects, subjectsC258ee),
     index: Object.assign(index, index),
     create: Object.assign(create, create),

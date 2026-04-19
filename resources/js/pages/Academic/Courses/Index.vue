@@ -48,7 +48,7 @@ defineOptions({
     <div class="px-4 py-8 mx-auto max-w-6xl sm:px-6 lg:px-8">
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-black text-zinc-900 dark:text-zinc-50">Malla Curricular</h1>
+                <h1 class="text-3xl font-black text-zinc-900 dark:text-zinc-50">Malla Curricular d</h1>
                 <p class="text-zinc-500 font-medium">Gestión de cursos, paralelos y sus respectivas materias base.</p>
             </div>
             
@@ -123,3 +123,4 @@ defineOptions({
         </div>
     </div>
 </template>
+

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\CourseController::update
-* @see app/Http/Controllers/CourseController.php:99
+* @see app/Http/Controllers/CourseController.php:133
 * @route '/{current_team}/courses/{course}/subjects'
 */
 export const update = (args: { current_team: string | number, course: number | { id: number } } | [current_team: string | number, course: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::update
-* @see app/Http/Controllers/CourseController.php:99
+* @see app/Http/Controllers/CourseController.php:133
 * @route '/{current_team}/courses/{course}/subjects'
 */
 update.url = (args: { current_team: string | number, course: number | { id: number } } | [current_team: string | number, course: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ update.url = (args: { current_team: string | number, course: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\CourseController::update
-* @see app/Http/Controllers/CourseController.php:99
+* @see app/Http/Controllers/CourseController.php:133
 * @route '/{current_team}/courses/{course}/subjects'
 */
 update.post = (args: { current_team: string | number, course: number | { id: number } } | [current_team: string | number, course: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -54,7 +54,7 @@ update.post = (args: { current_team: string | number, course: number | { id: num
 
 /**
 * @see \App\Http\Controllers\CourseController::update
-* @see app/Http/Controllers/CourseController.php:99
+* @see app/Http/Controllers/CourseController.php:133
 * @route '/{current_team}/courses/{course}/subjects'
 */
 const updateForm = (args: { current_team: string | number, course: number | { id: number } } | [current_team: string | number, course: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -64,7 +64,7 @@ const updateForm = (args: { current_team: string | number, course: number | { id
 
 /**
 * @see \App\Http\Controllers\CourseController::update
-* @see app/Http/Controllers/CourseController.php:99
+* @see app/Http/Controllers/CourseController.php:133
 * @route '/{current_team}/courses/{course}/subjects'
 */
 updateForm.post = (args: { current_team: string | number, course: number | { id: number } } | [current_team: string | number, course: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

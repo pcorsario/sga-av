@@ -49,12 +49,21 @@ Route::prefix('{current_team}')
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('grades.update');
 
         // Malla Curricular (Cursos y Materias)
+        Route::get('courses/export-template', [CourseController::class, 'exportTemplate'])->name('courses.export-template');
+        Route::post('courses/import', [CourseController::class, 'importExcel'])->name('courses.import-excel');
         Route::post('subjects', [SubjectController::class, 'store'])->name('subjects.store');
         Route::get('courses/{course}/subjects', [CourseController::class, 'subjects'])->name('courses.subjects');
         Route::post('courses/{course}/subjects', [CourseController::class, 'updateSubjects'])->name('courses.subjects.update');
         Route::resource('courses', CourseController::class);
 
         // Alumnos y Matrículas
+        Route::get('students/export-template', [StudentController::class, 'exportTemplate'])->name('students.export-template');
+        Route::post('students/import', [StudentController::class, 'importExcel'])->name('students.import-excel');
+
+        // Teachers Excel
+        Route::get('teachers/export-template', [TeacherController::class, 'exportTemplate'])->name('teachers.export-template');
+        Route::post('teachers/import-excel', [TeacherController::class, 'importExcel'])->name('teachers.import-excel');
+
         Route::resource('students', StudentController::class)
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->parameters(['students' => 'student']);

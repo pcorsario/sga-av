@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StudentsTemplateExport;
+use App\Imports\StudentsImport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Enums\RoleEnum;
 use App\Models\Course;
 use App\Models\Enrollment;
@@ -15,6 +18,38 @@ use Inertia\Inertia;
 class StudentController extends Controller
 {
     /**
+     * Download the Excel template for students.
+     */
+    public function exportTemplate()
+    {
+        return Excel::download(new StudentsTemplateExport, 'plantilla_matricula.xlsx');
+    }
+
+    /**
+     * Import students from an Excel file.
+     */
+    public function importExcel(Request $request, string $current_team)
+    {
+        if (! $request->user()->hasRole(RoleEnum::Autoridad->value)) {
+            abort(403, 'No autorizado.');
+        }
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            Excel::import(new StudentsImport($current_team), $request->file('file'));
+
+            return redirect()->route('students.index', ['current_team' => $current_team])
+                ->with('status', 'Estudiantes matriculados exitosamente.');
+        } catch (\Exception $e) {
+            // Devolvemos un error amigable con el mensaje específico de la fila
+            return back()->withErrors(['file' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request, string $current_team)
@@ -23,17 +58,23 @@ class StudentController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        // $students = User::with(['enrollments.course'])
-        //     ->orderBy('created_at', 'desc')
-        //     ->paginate(15);
+        $search = $request->query('search');
 
         $students = User::role(RoleEnum::Estudiante->value)
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
             ->with(['enrollments.course'])
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
-        // dd($students->toArray());
+            ->paginate(15)
+            ->withQueryString();
+
         return Inertia::render('Academic/Students/Index', [
             'students' => $students,
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -86,9 +127,6 @@ class StudentController extends Controller
                 'student_id' => $student->id,
                 'course_id' => $validated['course_id'],
             ]);
-
-            // Note: In an actual environment, parents association would also need to be handled,
-            // but for now, we'll just handle the student.
         });
 
         return redirect()->route('students.index', ['current_team' => $current_team])
@@ -139,7 +177,6 @@ class StudentController extends Controller
 
             $student->save();
 
-            // Actualizar la matrícula (asumiendo 1 curso activo por estudiante en este MVP)
             Enrollment::updateOrCreate(
                 ['student_id' => $student->id],
                 ['course_id' => $validated['course_id']]

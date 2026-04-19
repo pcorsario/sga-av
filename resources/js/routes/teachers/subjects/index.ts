@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:125
+* @see app/Http/Controllers/TeacherController.php:170
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 export const update = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:125
+* @see app/Http/Controllers/TeacherController.php:170
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 update.url = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ update.url = (args: { current_team: string | number, teacher: number | { id: num
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:125
+* @see app/Http/Controllers/TeacherController.php:170
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 update.post = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -54,7 +54,7 @@ update.post = (args: { current_team: string | number, teacher: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:125
+* @see app/Http/Controllers/TeacherController.php:170
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 const updateForm = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -64,7 +64,7 @@ const updateForm = (args: { current_team: string | number, teacher: number | { i
 
 /**
 * @see \App\Http\Controllers\TeacherController::update
-* @see app/Http/Controllers/TeacherController.php:125
+* @see app/Http/Controllers/TeacherController.php:170
 * @route '/{current_team}/teachers/{teacher}/subjects'
 */
 updateForm.post = (args: { current_team: string | number, teacher: number | { id: number } } | [current_team: string | number, teacher: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

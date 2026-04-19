@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 import { dashboard } from '@/routes';
 import teachersRoutes from '@/routes/teachers';
 import type { Team } from '@/types';
@@ -7,7 +8,22 @@ import type { Team } from '@/types';
 const props = defineProps<{
     currentTeam?: Team | null;
     teachers: any; // Paginator object
+    filters: { search: string };
 }>();
+
+const search = ref(props.filters.search || '');
+
+watch(search, (value) => {
+    router.get(
+        teachersRoutes.index.url({ current_team: props.currentTeam?.slug ?? '' }),
+        { search: value },
+        { 
+            preserveState: true, 
+            replace: true,
+            preserveScroll: true,
+        }
+    );
+});
 
 defineOptions({
     layout: (props: { currentTeam?: Team | null }) => ({
@@ -29,15 +45,30 @@ defineOptions({
     <Head title="Nómina de Profesores" />
 
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-3xl font-black text-zinc-900 dark:text-zinc-50">Cuerpo Docente</h1>
                 <p class="text-zinc-500 font-medium">Gestión administrativa de profesores y asignaciones</p>
             </div>
-            <div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <div class="relative w-full sm:w-80 group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500 text-zinc-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input 
+                        v-model="search"
+                        type="text" 
+                        placeholder="Buscar por nombre o correo..." 
+                        class="block w-full pl-11 pr-4 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl leading-5 shadow-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+                    >
+                </div>
+
                 <Link 
                     :href="teachersRoutes.create.url({ current_team: currentTeam?.slug ?? '' })"
-                    class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                    class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />

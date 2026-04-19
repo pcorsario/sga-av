@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TeachersTemplateExport;
+use App\Imports\TeachersImport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Enums\RoleEnum;
 use App\Models\CourseSubject;
 use App\Models\Team;
@@ -14,17 +17,59 @@ use Inertia\Inertia;
 
 class TeacherController extends Controller
 {
+    /**
+     * Download the Excel template for teachers.
+     */
+    public function exportTemplate()
+    {
+        return Excel::download(new TeachersTemplateExport, 'plantilla_profesores.xlsx');
+    }
+
+    /**
+     * Import teachers from an Excel file.
+     */
+    public function importExcel(Request $request, string $current_team)
+    {
+        $this->authorizeAccess($request);
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            Excel::import(new TeachersImport($current_team), $request->file('file'));
+
+            return redirect()->route('teachers.index', ['current_team' => $current_team])
+                ->with('status', 'Nómina de profesores importada exitosamente.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['file' => 'Error al importar el archivo: ' . $e->getMessage()]);
+        }
+    }
+
     public function index(Request $request, string $current_team)
     {
         $this->authorizeAccess($request);
 
+        $search = $request->input('search');
+
         $teachers = User::role(RoleEnum::Profesor->value)
+            ->whereHas('teams', function ($query) use ($current_team) {
+                $query->where('slug', $current_team);
+            })
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
             ->withCount('assignedSubjects')
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Academic/Teachers/Index', [
             'teachers' => $teachers,
+            'filters' => $request->only(['search']),
         ]);
     }
 
