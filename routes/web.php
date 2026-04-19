@@ -36,6 +36,7 @@ Route::prefix('teachers')
     ->group(function () {
         Route::get('dashboard', AcademicDashboardController::class)->name('teachers.dashboard');
         Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('teachers.grades.edit');
+        Route::get('grades/{courseSubject}/pdf', [GradeController::class, 'exportPdf'])->name('teachers.grades.pdf');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('teachers.grades.update');
     });
 
@@ -46,6 +47,7 @@ Route::prefix('{current_team}')
 
         // Rutas Académicas
         Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('grades.edit');
+        Route::get('grades/{courseSubject}/pdf', [GradeController::class, 'exportPdf'])->name('grades.pdf');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('grades.update');
 
         // Malla Curricular (Cursos y Materias)

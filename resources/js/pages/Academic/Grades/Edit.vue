@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import { dashboard } from '@/routes';
 import grades from '@/routes/grades';
 import teachers from '@/routes/teachers';
@@ -18,6 +19,8 @@ const props = defineProps<{
 
 
 const activeTab = ref<'diag' | 't1' | 't2' | 't3'>('diag');
+const isSaving = ref(false);
+const lastSaved = ref<Date | null>(null);
 
 const buildGradeData = (s: any) => ({
     id: s.id,
@@ -87,20 +90,56 @@ const form = useForm({
         t2: { ...props.insumoNames.t2 },
         t3: { ...props.insumoNames.t3 },
     },
+    auto_save: false,
 });
 
-const submit = () => {
-    const url = props.academic?.role === 'profesor'
+const getUpdateUrl = () => {
+    return props.academic?.role === 'profesor'
         ? teachers.grades.update.url({ courseSubject: props.courseSubject.id })
         : grades.update.url({
             current_team: props.currentTeam?.slug ?? '',
             courseSubject: props.courseSubject.id,
         });
+};
 
-    form.post(url, {
+const submit = () => {
+    form.auto_save = false;
+    form.post(getUpdateUrl(), {
         preserveScroll: true,
+        onSuccess: () => {
+            lastSaved.value = new Date();
+        }
     });
 };
+
+const autoSave = useDebounceFn(() => {
+    isSaving.value = true;
+    form.auto_save = true;
+    
+    form.post(getUpdateUrl(), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            isSaving.value = false;
+            lastSaved.value = new Date();
+        },
+        onError: () => {
+            isSaving.value = false;
+        },
+        onFinish: () => {
+            isSaving.value = false;
+        }
+    });
+}, 1000);
+
+// Observar todos los cambios para auto-guardado integral
+watch(
+    () => [form.student_dcds, form.dcds, form.grades, form.insumo_names], 
+    () => {
+        autoSave();
+    }, 
+    { deep: true }
+);
 
 defineOptions({
     layout: (props: { currentTeam?: Team | null; courseSubject: any, academic: any }) => ({
@@ -224,7 +263,38 @@ const overallStatus = computed(() => {
                     {{ courseSubject.course.level }}
                 </p>
             </div>
-            <div class="hidden md:block">
+            <div class="hidden md:flex items-center gap-4">
+                <!-- Indicador de Auto-guardado -->
+                <div v-if="isSaving || lastSaved" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 transition-all duration-500">
+                    <template v-if="isSaving">
+                        <div class="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span class="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none">Sincronizando...</span>
+                    </template>
+                    <template v-else-if="lastSaved">
+                        <div class="flex items-center gap-1.5 text-emerald-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">Cambios Guardados</span>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Botón de Reporte PDF -->
+                <a 
+                    v-if="activeTab === 'diag'"
+                    :href="academic?.role === 'profesor' 
+                        ? teachers.grades.pdf.url({ courseSubject: props.courseSubject.id })
+                        : grades.pdf.url({ current_team: props.currentTeam?.slug ?? '', courseSubject: props.courseSubject.id })"
+                    target="_blank"
+                    class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-xs hover:bg-zinc-50 dark:hover:bg-zinc-700 transition shadow-sm"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                    </svg>
+                    Reporte PDF
+                </a>
+
                 <span
                     class="rounded-2xl bg-blue-100 px-4 py-2 text-xs font-black tracking-tighter text-blue-600 uppercase dark:bg-blue-900/30 dark:text-blue-400"
                     >Periodo Lectivo 2026</span

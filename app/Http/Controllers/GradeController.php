@@ -9,6 +9,7 @@ use App\Models\Grade;
 use App\Models\InsumoName;
 use App\Models\StudentDcd;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -121,6 +122,120 @@ class GradeController extends Controller
         $data['eval'] = $grade ? $grade->{"{$trimestre}_eval"} : null;
 
         return $data;
+    }
+
+    public function exportPdf(Request $request, $current_team, $courseSubject = null)
+    {
+        if (! $courseSubject instanceof CourseSubject) {
+            $courseSubject = CourseSubject::findOrFail($current_team);
+        }
+
+        $user = $request->user();
+        if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
+            abort(403);
+        }
+
+        $courseSubject->load(['course', 'subject', 'teacher']);
+        
+        $studentsCollection = User::role(RoleEnum::Estudiante->value)
+            ->whereHas('enrollments', function ($q) use ($courseSubject) {
+                $q->where('course_id', $courseSubject->course_id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        $studentDcds = StudentDcd::where('course_subject_id', $courseSubject->id)
+            ->get()
+            ->keyBy('student_id');
+
+        $columnTotals = array_fill(1, 10, 0);
+        $totalSelections = 0;
+        $statusCounts = ['LOGRADO' => 0, 'EN PROCESO' => 0, 'INICIADO' => 0];
+
+        $studentsData = $studentsCollection->map(function ($student) use ($studentDcds, &$columnTotals, &$totalSelections, &$statusCounts) {
+            $selections = $studentDcds[$student->id]->selections ?? array_fill(1, 10, false);
+            
+            $count = 0;
+            foreach ($selections as $key => $val) {
+                if ($val) {
+                    $count++;
+                    $columnTotals[$key]++;
+                }
+            }
+            $totalSelections += $count;
+
+            $status = $this->calculateStatus($count);
+            $statusCounts[$status['text']]++;
+
+            return (object)[
+                'name' => $student->name,
+                'selections' => $selections,
+                'total' => $count,
+                'percentage' => round(($count / 10) * 100),
+                'status' => $status
+            ];
+        });
+
+        // Pre-calcular Gráfico de Pastel (SVG Paths)
+        $pieData = [];
+        $totalStudents = count($studentsData);
+        if ($totalStudents > 0) {
+            $startAngle = 0;
+            $colors = [
+                'LOGRADO' => '#6d28d9',
+                'EN PROCESO' => '#8b5cf6',
+                'INICIADO' => '#c4b5fd'
+            ];
+            
+            foreach ($statusCounts as $label => $count) {
+                if ($count > 0) {
+                    $angle = ($count / $totalStudents) * 360;
+                    $endAngle = $startAngle + $angle;
+                    
+                    // Coordenadas calculadas para círculo de radio 50 (centro 50,50)
+                    $x1 = round(50 + 50 * cos(deg2rad($startAngle - 90)), 2);
+                    $y1 = round(50 + 50 * sin(deg2rad($startAngle - 90)), 2);
+                    $x2 = round(50 + 50 * cos(deg2rad($endAngle - 90)), 2);
+                    $y2 = round(50 + 50 * sin(deg2rad($endAngle - 90)), 2);
+                    
+                    $largeArc = $angle > 180 ? 1 : 0;
+                    $pieData[] = [
+                        'path' => "M 50 50 L $x1 $y1 A 50 50 0 $largeArc 1 $x2 $y2 Z",
+                        'color' => $colors[$label] ?? '#ccc'
+                    ];
+                    $startAngle = $endAngle;
+                }
+            }
+        }
+
+        $maxPossible = count($studentsData) * 10;
+        $overallPercentage = $maxPossible > 0 ? round(($totalSelections / $maxPossible) * 100) : 0;
+
+        $pdf = Pdf::loadView('reports.diagnostic', [
+            'course' => $courseSubject->course,
+            'subject' => $courseSubject->subject,
+            'teacher' => $courseSubject->teacher,
+            'studentsData' => $studentsData,
+            'columnTotals' => $columnTotals,
+            'totalSelections' => $totalSelections,
+            'overallPercentage' => $overallPercentage,
+            'statusCounts' => $statusCounts,
+            'pieData' => $pieData,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download("Reporte_Diagnostico_{$courseSubject->subject->name}.pdf");
+    }
+
+    protected function calculateStatus($count): array
+    {
+        $percentage = $count / 10;
+        if ($percentage > 0.69) {
+            return ['text' => 'LOGRADO', 'class' => 'logrado'];
+        }
+        if ($percentage >= 0.39) {
+            return ['text' => 'EN PROCESO', 'class' => 'proceso'];
+        }
+        return ['text' => 'INICIADO', 'class' => 'iniciado'];
     }
 
     public function update(Request $request, $current_team, $courseSubject = null)
@@ -236,6 +351,10 @@ class GradeController extends Controller
                 ],
                 $updateData
             );
+        }
+
+        if ($request->boolean('auto_save')) {
+            return back();
         }
 
         return back()->with('status', 'Calificaciones actualizadas exitosamente.');
