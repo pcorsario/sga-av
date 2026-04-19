@@ -72,10 +72,10 @@ class AcademicSeeder extends Seeder
             $parent->children()->syncWithoutDetaching([$student->id]);
         }
 
-        // 5. Crear 25 estudiantes adicionales para 8vo EGB
+        // 5. Crear 40 estudiantes adicionales para 8vo EGB
         $octavoEgb = Course::where('name', '8vo EGB')->first();
         if ($octavoEgb) {
-            for ($i = 1; $i <= 25; $i++) {
+            for ($i = 1; $i <= 40; $i++) {
                 $newStudent = User::factory()->create([
                     'name' => "Estudiante {$octavoEgb->name} {$i}",
                     'email' => "estudiante8vo{$i}@example.com",
