@@ -3,16 +3,19 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { dashboard } from '@/routes';
 import grades from '@/routes/grades';
+import teachers from '@/routes/teachers';
 import type { Team } from '@/types';
 
 const props = defineProps<{
     currentTeam?: Team | null;
+    academic?: { role: string };
     courseSubject: any;
     students: any[];
     dcds: any[];
     studentDcds: any;
     insumoNames: any;
 }>();
+
 
 const activeTab = ref<'diag' | 't1' | 't2' | 't3'>('diag');
 
@@ -87,25 +90,26 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(
-        grades.update.url({
+    const url = props.academic?.role === 'profesor'
+        ? teachers.grades.update.url({ courseSubject: props.courseSubject.id })
+        : grades.update.url({
             current_team: props.currentTeam?.slug ?? '',
             courseSubject: props.courseSubject.id,
-        }),
-        {
-            preserveScroll: true,
-        },
-    );
+        });
+
+    form.post(url, {
+        preserveScroll: true,
+    });
 };
 
 defineOptions({
-    layout: (props: { currentTeam?: Team | null; courseSubject: any }) => ({
+    layout: (props: { currentTeam?: Team | null; courseSubject: any, academic: any }) => ({
         breadcrumbs: [
             {
                 title: 'Dashboard Académico',
-                href: props.currentTeam
-                    ? dashboard(props.currentTeam.slug)
-                    : '/',
+                href: props.academic?.role === 'profesor'
+                    ? teachers.dashboard.url()
+                    : (props.currentTeam ? dashboard(props.currentTeam.slug) : '/'),
             },
             {
                 title: `Notas: ${props.courseSubject.subject.name}`,

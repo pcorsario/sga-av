@@ -2,14 +2,112 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \App\Http\Controllers\GradeController::edit
 * @see app/Http/Controllers/GradeController.php:17
-* @route '/{current_team}/grades/{courseSubject}'
+* @route '/teachers/grades/{courseSubject}'
 */
-export const edit = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: edit.url(args, options),
+const edita6e6e2b6bd22d7e1c7a9dfc30ba813d1 = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
     method: 'get',
 })
 
-edit.definition = {
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.definition = {
+    methods: ["get","head"],
+    url: '/teachers/grades/{courseSubject}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/teachers/grades/{courseSubject}'
+*/
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { courseSubject: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            courseSubject: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        courseSubject: args.courseSubject,
+    }
+
+    return edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.definition.url
+            .replace('{courseSubject}', parsedArgs.courseSubject.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/teachers/grades/{courseSubject}'
+*/
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.get = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/teachers/grades/{courseSubject}'
+*/
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.head = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/teachers/grades/{courseSubject}'
+*/
+const edita6e6e2b6bd22d7e1c7a9dfc30ba813d1Form = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/teachers/grades/{courseSubject}'
+*/
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1Form.get = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/teachers/grades/{courseSubject}'
+*/
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1Form.head = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+edita6e6e2b6bd22d7e1c7a9dfc30ba813d1.form = edita6e6e2b6bd22d7e1c7a9dfc30ba813d1Form
+/**
+* @see \App\Http\Controllers\GradeController::edit
+* @see app/Http/Controllers/GradeController.php:17
+* @route '/{current_team}/grades/{courseSubject}'
+*/
+const edit5ada30daf073685d879943d8b99dd875 = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: edit5ada30daf073685d879943d8b99dd875.url(args, options),
+    method: 'get',
+})
+
+edit5ada30daf073685d879943d8b99dd875.definition = {
     methods: ["get","head"],
     url: '/{current_team}/grades/{courseSubject}',
 } satisfies RouteDefinition<["get","head"]>
@@ -19,7 +117,7 @@ edit.definition = {
 * @see app/Http/Controllers/GradeController.php:17
 * @route '/{current_team}/grades/{courseSubject}'
 */
-edit.url = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions) => {
+edit5ada30daf073685d879943d8b99dd875.url = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
             current_team: args[0],
@@ -31,12 +129,10 @@ edit.url = (args: { current_team: string | number, courseSubject: number | { id:
 
     const parsedArgs = {
         current_team: args.current_team,
-        courseSubject: typeof args.courseSubject === 'object'
-        ? args.courseSubject.id
-        : args.courseSubject,
+        courseSubject: args.courseSubject,
     }
 
-    return edit.definition.url
+    return edit5ada30daf073685d879943d8b99dd875.definition.url
             .replace('{current_team}', parsedArgs.current_team.toString())
             .replace('{courseSubject}', parsedArgs.courseSubject.toString())
             .replace(/\/+$/, '') + queryParams(options)
@@ -47,8 +143,8 @@ edit.url = (args: { current_team: string | number, courseSubject: number | { id:
 * @see app/Http/Controllers/GradeController.php:17
 * @route '/{current_team}/grades/{courseSubject}'
 */
-edit.get = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: edit.url(args, options),
+edit5ada30daf073685d879943d8b99dd875.get = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: edit5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'get',
 })
 
@@ -57,8 +153,8 @@ edit.get = (args: { current_team: string | number, courseSubject: number | { id:
 * @see app/Http/Controllers/GradeController.php:17
 * @route '/{current_team}/grades/{courseSubject}'
 */
-edit.head = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: edit.url(args, options),
+edit5ada30daf073685d879943d8b99dd875.head = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: edit5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'head',
 })
 
@@ -67,8 +163,8 @@ edit.head = (args: { current_team: string | number, courseSubject: number | { id
 * @see app/Http/Controllers/GradeController.php:17
 * @route '/{current_team}/grades/{courseSubject}'
 */
-const editForm = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: edit.url(args, options),
+const edit5ada30daf073685d879943d8b99dd875Form = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'get',
 })
 
@@ -77,8 +173,8 @@ const editForm = (args: { current_team: string | number, courseSubject: number |
 * @see app/Http/Controllers/GradeController.php:17
 * @route '/{current_team}/grades/{courseSubject}'
 */
-editForm.get = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: edit.url(args, options),
+edit5ada30daf073685d879943d8b99dd875Form.get = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'get',
 })
 
@@ -87,8 +183,8 @@ editForm.get = (args: { current_team: string | number, courseSubject: number | {
 * @see app/Http/Controllers/GradeController.php:17
 * @route '/{current_team}/grades/{courseSubject}'
 */
-editForm.head = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: edit.url(args, {
+edit5ada30daf073685d879943d8b99dd875Form.head = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: edit5ada30daf073685d879943d8b99dd875.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -97,29 +193,107 @@ editForm.head = (args: { current_team: string | number, courseSubject: number | 
     method: 'get',
 })
 
-edit.form = editForm
+edit5ada30daf073685d879943d8b99dd875.form = edit5ada30daf073685d879943d8b99dd875Form
+
+export const edit = {
+    '/teachers/grades/{courseSubject}': edita6e6e2b6bd22d7e1c7a9dfc30ba813d1,
+    '/{current_team}/grades/{courseSubject}': edit5ada30daf073685d879943d8b99dd875,
+}
 
 /**
 * @see \App\Http\Controllers\GradeController::update
-* @see app/Http/Controllers/GradeController.php:119
-* @route '/{current_team}/grades/{courseSubject}'
+* @see app/Http/Controllers/GradeController.php:126
+* @route '/teachers/grades/{courseSubject}'
 */
-export const update = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: update.url(args, options),
+const updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1 = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
     method: 'post',
 })
 
-update.definition = {
+updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.definition = {
+    methods: ["post"],
+    url: '/teachers/grades/{courseSubject}',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\GradeController::update
+* @see app/Http/Controllers/GradeController.php:126
+* @route '/teachers/grades/{courseSubject}'
+*/
+updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.url = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { courseSubject: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            courseSubject: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        courseSubject: args.courseSubject,
+    }
+
+    return updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.definition.url
+            .replace('{courseSubject}', parsedArgs.courseSubject.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\GradeController::update
+* @see app/Http/Controllers/GradeController.php:126
+* @route '/teachers/grades/{courseSubject}'
+*/
+updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.post = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\GradeController::update
+* @see app/Http/Controllers/GradeController.php:126
+* @route '/teachers/grades/{courseSubject}'
+*/
+const updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1Form = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\GradeController::update
+* @see app/Http/Controllers/GradeController.php:126
+* @route '/teachers/grades/{courseSubject}'
+*/
+updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1Form.post = (args: { courseSubject: string | number } | [courseSubject: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.url(args, options),
+    method: 'post',
+})
+
+updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1.form = updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1Form
+/**
+* @see \App\Http\Controllers\GradeController::update
+* @see app/Http/Controllers/GradeController.php:126
+* @route '/{current_team}/grades/{courseSubject}'
+*/
+const update5ada30daf073685d879943d8b99dd875 = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: update5ada30daf073685d879943d8b99dd875.url(args, options),
+    method: 'post',
+})
+
+update5ada30daf073685d879943d8b99dd875.definition = {
     methods: ["post"],
     url: '/{current_team}/grades/{courseSubject}',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see \App\Http\Controllers\GradeController::update
-* @see app/Http/Controllers/GradeController.php:119
+* @see app/Http/Controllers/GradeController.php:126
 * @route '/{current_team}/grades/{courseSubject}'
 */
-update.url = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions) => {
+update5ada30daf073685d879943d8b99dd875.url = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
             current_team: args[0],
@@ -131,12 +305,10 @@ update.url = (args: { current_team: string | number, courseSubject: number | { i
 
     const parsedArgs = {
         current_team: args.current_team,
-        courseSubject: typeof args.courseSubject === 'object'
-        ? args.courseSubject.id
-        : args.courseSubject,
+        courseSubject: args.courseSubject,
     }
 
-    return update.definition.url
+    return update5ada30daf073685d879943d8b99dd875.definition.url
             .replace('{current_team}', parsedArgs.current_team.toString())
             .replace('{courseSubject}', parsedArgs.courseSubject.toString())
             .replace(/\/+$/, '') + queryParams(options)
@@ -144,35 +316,40 @@ update.url = (args: { current_team: string | number, courseSubject: number | { i
 
 /**
 * @see \App\Http\Controllers\GradeController::update
-* @see app/Http/Controllers/GradeController.php:119
+* @see app/Http/Controllers/GradeController.php:126
 * @route '/{current_team}/grades/{courseSubject}'
 */
-update.post = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: update.url(args, options),
+update5ada30daf073685d879943d8b99dd875.post = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: update5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\GradeController::update
-* @see app/Http/Controllers/GradeController.php:119
+* @see app/Http/Controllers/GradeController.php:126
 * @route '/{current_team}/grades/{courseSubject}'
 */
-const updateForm = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, options),
+const update5ada30daf073685d879943d8b99dd875Form = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'post',
 })
 
 /**
 * @see \App\Http\Controllers\GradeController::update
-* @see app/Http/Controllers/GradeController.php:119
+* @see app/Http/Controllers/GradeController.php:126
 * @route '/{current_team}/grades/{courseSubject}'
 */
-updateForm.post = (args: { current_team: string | number, courseSubject: number | { id: number } } | [current_team: string | number, courseSubject: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, options),
+update5ada30daf073685d879943d8b99dd875Form.post = (args: { current_team: string | number, courseSubject: string | number } | [current_team: string | number, courseSubject: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update5ada30daf073685d879943d8b99dd875.url(args, options),
     method: 'post',
 })
 
-update.form = updateForm
+update5ada30daf073685d879943d8b99dd875.form = update5ada30daf073685d879943d8b99dd875Form
+
+export const update = {
+    '/teachers/grades/{courseSubject}': updatea6e6e2b6bd22d7e1c7a9dfc30ba813d1,
+    '/{current_team}/grades/{courseSubject}': update5ada30daf073685d879943d8b99dd875,
+}
 
 const GradeController = { edit, update }
 

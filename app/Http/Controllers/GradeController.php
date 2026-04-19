@@ -14,8 +14,12 @@ use Inertia\Inertia;
 
 class GradeController extends Controller
 {
-    public function edit(Request $request, string $current_team, CourseSubject $courseSubject)
+    public function edit(Request $request, $current_team, $courseSubject = null)
     {
+        if (! $courseSubject instanceof CourseSubject) {
+            $courseSubject = CourseSubject::findOrFail($current_team);
+        }
+
         $user = $request->user();
 
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
@@ -86,6 +90,9 @@ class GradeController extends Controller
         }
 
         return Inertia::render('Academic/Grades/Edit', [
+            'academic' => [
+                'role' => $user->hasRole(RoleEnum::Autoridad->value) ? 'autoridad' : 'profesor',
+            ],
             'courseSubject' => $courseSubject,
             'students' => $students,
             'dcds' => $dcds,
@@ -116,8 +123,12 @@ class GradeController extends Controller
         return $data;
     }
 
-    public function update(Request $request, string $current_team, CourseSubject $courseSubject)
+    public function update(Request $request, $current_team, $courseSubject = null)
     {
+        if (! $courseSubject instanceof CourseSubject) {
+            $courseSubject = CourseSubject::findOrFail($current_team);
+        }
+
         $user = $request->user();
 
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {

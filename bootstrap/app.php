@@ -27,12 +27,18 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->redirectUsersTo(function (Request $request) {
             $user = $request->user();
-            if ($user && $user->currentTeam) {
-                return route('dashboard', ['current_team' => $user->currentTeam->slug]);
+            if ($user) {
+                if ($user->hasRole(App\Enums\RoleEnum::Profesor->value)) {
+                    return route('teachers.dashboard');
+                }
+                if ($user->currentTeam) {
+                    return route('dashboard', ['current_team' => $user->currentTeam->slug]);
+                }
             }
 
             return '/';
         });
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -15,7 +15,11 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('dashboard', ['current_team' => Auth::user()->currentTeam->id]);
+        $user = Auth::user();
+        if ($user->hasRole(App\Enums\RoleEnum::Profesor->value)) {
+            return redirect()->route('teachers.dashboard');
+        }
+        return redirect()->route('dashboard', ['current_team' => $user->currentTeam->slug]);
     }
 
     return redirect()->route('login');
@@ -26,6 +30,14 @@ Route::get('/', function () {
 // ])->name('home');
 
 // Route::redirect('/', '/login')->name('home');
+
+Route::prefix('teachers')
+    ->middleware(['auth', 'verified'])
+    ->group(function () {
+        Route::get('dashboard', AcademicDashboardController::class)->name('teachers.dashboard');
+        Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('teachers.grades.edit');
+        Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('teachers.grades.update');
+    });
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
@@ -59,6 +71,7 @@ Route::prefix('{current_team}')
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->parameters(['teachers' => 'teacher']);
     });
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');

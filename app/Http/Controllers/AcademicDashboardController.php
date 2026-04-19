@@ -10,7 +10,7 @@ use Inertia\Inertia;
 
 class AcademicDashboardController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, $current_team = null)
     {
         $user = $request->user();
         $data = [];

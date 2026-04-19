@@ -14,13 +14,13 @@ const props = defineProps<{
 }>();
 
 defineOptions({
-    layout: (props: { currentTeam?: Team | null }) => ({
+    layout: (props: { currentTeam?: Team | null, academic: any }) => ({
         breadcrumbs: [
             {
                 title: 'Dashboard Académico',
-                href: props.currentTeam
-                    ? dashboard(props.currentTeam.slug)
-                    : '/',
+                href: props.academic?.role === 'profesor'
+                    ? teachers.dashboard.url()
+                    : (props.currentTeam ? dashboard(props.currentTeam.slug) : '/'),
             },
         ],
     }),
@@ -90,7 +90,7 @@ defineOptions({
                     <p class="text-zinc-500 mt-1">{{ asig.course.name }}</p>
                     <p class="text-xs text-zinc-400 uppercase mt-2 tracking-tighter">{{ asig.course.level }}</p>
                     <Link 
-                        :href="grades.edit.url({ current_team: currentTeam?.slug ?? '', courseSubject: asig.id })"
+                        :href="teachers.grades.edit.url({ courseSubject: asig.id })"
                         class="mt-6 w-full py-2.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl text-sm font-semibold hover:opacity-90 transition text-center inline-block"
                     >
                         Subir Calificaciones

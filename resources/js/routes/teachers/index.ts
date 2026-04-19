@@ -1,5 +1,87 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import grades from './grades'
 import subjectsC258ee from './subjects'
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: dashboard.url(options),
+    method: 'get',
+})
+
+dashboard.definition = {
+    methods: ["get","head"],
+    url: '/teachers/dashboard',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+dashboard.url = (options?: RouteQueryOptions) => {
+    return dashboard.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: dashboard.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\AcademicDashboardController::__invoke
+* @see app/Http/Controllers/AcademicDashboardController.php:13
+* @route '/teachers/dashboard'
+*/
+dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+dashboard.form = dashboardForm
+
 /**
 * @see \App\Http\Controllers\TeacherController::subjects
 * @see app/Http/Controllers/TeacherController.php:107
@@ -666,6 +748,8 @@ destroyForm.delete = (args: { current_team: string | number, teacher: string | n
 destroy.form = destroyForm
 
 const teachers = {
+    dashboard: Object.assign(dashboard, dashboard),
+    grades: Object.assign(grades, grades),
     subjects: Object.assign(subjects, subjectsC258ee),
     index: Object.assign(index, index),
     create: Object.assign(create, create),
