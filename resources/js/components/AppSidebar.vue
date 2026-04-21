@@ -48,8 +48,8 @@ const footerNavItems: NavItem[] = [
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset" >
-        <SidebarHeader >
+    <Sidebar collapsible="icon" variant="inset">
+        <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>

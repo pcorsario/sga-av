@@ -17,7 +17,6 @@ const props = defineProps<{
     insumoNames: any;
 }>();
 
-
 const activeTab = ref<'diag' | 't1' | 't2' | 't3'>('diag');
 const isSaving = ref(false);
 const lastSaved = ref<Date | null>(null);
@@ -97,9 +96,9 @@ const getUpdateUrl = () => {
     return props.academic?.role === 'profesor'
         ? teachers.grades.update.url({ courseSubject: props.courseSubject.id })
         : grades.update.url({
-            current_team: props.currentTeam?.slug ?? '',
-            courseSubject: props.courseSubject.id,
-        });
+              current_team: props.currentTeam?.slug ?? '',
+              courseSubject: props.courseSubject.id,
+          });
 };
 
 const submit = () => {
@@ -108,14 +107,14 @@ const submit = () => {
         preserveScroll: true,
         onSuccess: () => {
             lastSaved.value = new Date();
-        }
+        },
     });
 };
 
 const autoSave = useDebounceFn(() => {
     isSaving.value = true;
     form.auto_save = true;
-    
+
     form.post(getUpdateUrl(), {
         preserveScroll: true,
         preserveState: true,
@@ -128,27 +127,34 @@ const autoSave = useDebounceFn(() => {
         },
         onFinish: () => {
             isSaving.value = false;
-        }
+        },
     });
 }, 1000);
 
 // Observar todos los cambios para auto-guardado integral
 watch(
-    () => [form.student_dcds, form.dcds, form.grades, form.insumo_names], 
+    () => [form.student_dcds, form.dcds, form.grades, form.insumo_names],
     () => {
         autoSave();
-    }, 
-    { deep: true }
+    },
+    { deep: true },
 );
 
 defineOptions({
-    layout: (props: { currentTeam?: Team | null; courseSubject: any, academic: any }) => ({
+    layout: (props: {
+        currentTeam?: Team | null;
+        courseSubject: any;
+        academic: any;
+    }) => ({
         breadcrumbs: [
             {
                 title: 'Dashboard Académico',
-                href: props.academic?.role === 'profesor'
-                    ? teachers.dashboard.url()
-                    : (props.currentTeam ? dashboard(props.currentTeam.slug) : '/'),
+                href:
+                    props.academic?.role === 'profesor'
+                        ? teachers.dashboard.url()
+                        : props.currentTeam
+                          ? dashboard(props.currentTeam.slug)
+                          : '/',
             },
             {
                 title: `Notas: ${props.courseSubject.subject.name}`,
@@ -159,9 +165,9 @@ defineOptions({
 });
 
 const inputClass =
-    'w-full rounded-xl border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition shadow-inner px-1 py-2 text-sm min-w-[3rem]';
+    'w-full rounded-none border border-zinc-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-1 py-1 text-xs min-w-[2.2rem]';
 const nameInputClass =
-    'w-full text-[10px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded transition truncate';
+    'w-full text-[9px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded transition truncate uppercase [writing-mode:vertical-rl] rotate-180';
 
 const getStatus = (selections: Record<number, boolean>) => {
     const count = Object.values(selections).filter(Boolean).length;
@@ -263,34 +269,70 @@ const overallStatus = computed(() => {
                     {{ courseSubject.course.level }}
                 </p>
             </div>
-            <div class="hidden md:flex items-center gap-4">
+            <div class="hidden items-center gap-4 md:flex">
                 <!-- Indicador de Auto-guardado -->
-                <div v-if="isSaving || lastSaved" class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 transition-all duration-500">
+                <div
+                    v-if="isSaving || lastSaved"
+                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2 transition-all duration-500 dark:border-zinc-800 dark:bg-zinc-800/50"
+                >
                     <template v-if="isSaving">
-                        <div class="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
-                        <span class="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none">Sincronizando...</span>
+                        <div
+                            class="h-2 w-2 animate-pulse rounded-full bg-blue-500"
+                        ></div>
+                        <span
+                            class="text-[10px] leading-none font-black tracking-widest text-zinc-500 uppercase"
+                            >Sincronizando...</span
+                        >
                     </template>
                     <template v-else-if="lastSaved">
                         <div class="flex items-center gap-1.5 text-emerald-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-3.5 w-3.5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"
+                                />
                             </svg>
-                            <span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">Cambios Guardados</span>
+                            <span
+                                class="text-[10px] leading-none font-black tracking-widest text-zinc-400 uppercase"
+                                >Cambios Guardados</span
+                            >
                         </div>
                     </template>
                 </div>
 
                 <!-- Botón de Reporte PDF -->
-                <a 
+                <a
                     v-if="activeTab === 'diag'"
-                    :href="academic?.role === 'profesor' 
-                        ? teachers.grades.pdf.url({ courseSubject: props.courseSubject.id })
-                        : grades.pdf.url({ current_team: props.currentTeam?.slug ?? '', courseSubject: props.courseSubject.id })"
+                    :href="
+                        academic?.role === 'profesor'
+                            ? teachers.grades.pdf.url({
+                                  courseSubject: props.courseSubject.id,
+                              })
+                            : grades.pdf.url({
+                                  current_team: props.currentTeam?.slug ?? '',
+                                  courseSubject: props.courseSubject.id,
+                              })
+                    "
                     target="_blank"
-                    class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-xs hover:bg-zinc-50 dark:hover:bg-zinc-700 transition shadow-sm"
+                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 text-red-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                            clip-rule="evenodd"
+                        />
                     </svg>
                     Reporte PDF
                 </a>
@@ -360,21 +402,21 @@ const overallStatus = computed(() => {
                 </div>
 
                 <div v-if="activeTab === 'diag'" class="p-6">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
+                    <div class="custom-scrollbar relative overflow-x-auto pb-4">
+                        <table class="w-full min-w-[1000px] text-left">
                             <thead>
                                 <tr
                                     class="border-b-2 border-zinc-300 dark:border-zinc-600"
                                 >
                                     <th
-                                        class="w-64 py-3 pr-4 text-sm font-black text-zinc-600 dark:text-zinc-300"
+                                        class="sticky left-0 z-30 w-64 border-r border-zinc-200 bg-zinc-50 py-1 pr-4 text-sm font-black text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                                     >
                                         Estudiante
                                     </th>
                                     <th
                                         v-for="i in 10"
                                         :key="'th-' + i"
-                                        class="min-w-[3rem] px-2 py-3 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
+                                        class="min-w-[3rem] px-2 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
                                     >
                                         <input
                                             v-model="form.dcds[i - 1].name"
@@ -383,17 +425,17 @@ const overallStatus = computed(() => {
                                         />
                                     </th>
                                     <th
-                                        class="px-4 py-3 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
+                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
                                     >
                                         Total
                                     </th>
                                     <th
-                                        class="px-4 py-3 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
+                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
                                     >
                                         %
                                     </th>
                                     <th
-                                        class="px-4 py-3 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
+                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
                                     >
                                         Estado
                                     </th>
@@ -407,7 +449,9 @@ const overallStatus = computed(() => {
                                     :key="student.id"
                                     class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
                                 >
-                                    <td class="py-3 pr-4">
+                                    <td
+                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white py-2 pr-4 dark:border-zinc-800 dark:bg-zinc-900"
+                                    >
                                         <div class="flex items-center gap-3">
                                             <div
                                                 class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-800"
@@ -415,7 +459,7 @@ const overallStatus = computed(() => {
                                                 {{ index + 1 }}
                                             </div>
                                             <span
-                                                class="font-bold text-zinc-800 dark:text-zinc-200"
+                                                class="text-xs font-bold text-zinc-800 dark:text-zinc-200"
                                                 >{{ student.name }}</span
                                             >
                                         </div>
@@ -423,7 +467,7 @@ const overallStatus = computed(() => {
                                     <td
                                         v-for="i in 10"
                                         :key="'cb-' + i"
-                                        class="px-2 py-3 text-center"
+                                        class="px-2 py-2 text-center"
                                     >
                                         <input
                                             type="checkbox"
@@ -442,7 +486,7 @@ const overallStatus = computed(() => {
                                             class="h-6 w-6 cursor-pointer rounded border-zinc-300 text-amber-500 focus:ring-amber-500"
                                         />
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-4 py-2 text-center">
                                         <span
                                             class="font-black text-zinc-700 dark:text-zinc-300"
                                         >
@@ -455,7 +499,7 @@ const overallStatus = computed(() => {
                                             }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-4 py-2 text-center">
                                         <span
                                             class="font-black text-zinc-700 dark:text-zinc-300"
                                         >
@@ -468,7 +512,7 @@ const overallStatus = computed(() => {
                                             }}%
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-4 py-2 text-center">
                                         <span
                                             :class="[
                                                 'inline-block rounded-full px-3 py-1 text-xs font-black',
@@ -494,7 +538,7 @@ const overallStatus = computed(() => {
                                 <tr
                                     class="border-t-2 border-zinc-300 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800/50"
                                 >
-                                    <td class="py-3 pr-4">
+                                    <td class="py-1 pr-4">
                                         <span
                                             class="font-black text-zinc-700 dark:text-zinc-300"
                                             >TOTAL</span
@@ -503,26 +547,26 @@ const overallStatus = computed(() => {
                                     <td
                                         v-for="i in 10"
                                         :key="'total-' + i"
-                                        class="px-2 py-3 text-center"
+                                        class="px-2 py-1 text-center"
                                     >
                                         <span
                                             class="font-black text-zinc-700 dark:text-zinc-300"
                                             >{{ columnTotals[i] }}</span
                                         >
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-4 py-2 text-center">
                                         <span
                                             class="font-black text-zinc-700 dark:text-zinc-300"
                                             >{{ totalSelected }}</span
                                         >
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-4 py-2 text-center">
                                         <span
                                             class="font-black text-zinc-700 dark:text-zinc-300"
                                             >{{ overallPercentage }}%</span
                                         >
                                     </td>
-                                    <td class="px-4 py-3 text-center">
+                                    <td class="px-4 py-2 text-center">
                                         <span
                                             :class="[
                                                 'inline-block rounded-full px-3 py-1 text-xs font-black',
@@ -596,14 +640,19 @@ const overallStatus = computed(() => {
                     </div>
                 </div>
 
-                <div v-else class="w-full overflow-x-auto">
-                    <table class="min-w-max border-collapse text-left">
+                <div
+                    v-else
+                    class="custom-scrollbar relative w-full overflow-x-auto pb-4"
+                >
+                    <table
+                        class="w-full min-w-[1400px] border-collapse text-left"
+                    >
                         <thead
                             class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"
                         >
                             <tr>
                                 <th
-                                    class="px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase"
+                                    class="sticky left-0 z-30 bg-zinc-50 px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase dark:bg-zinc-800"
                                 >
                                     Estudiante
                                 </th>
@@ -641,8 +690,10 @@ const overallStatus = computed(() => {
                                     Obs.
                                 </th>
                             </tr>
-                            <tr class="bg-zinc-50/50 dark:bg-zinc-800/30">
-                                <th class="px-6 py-2"></th>
+                            <tr class="h-24 bg-zinc-50/50 dark:bg-zinc-800/30">
+                                <th
+                                    class="sticky left-0 z-30 bg-zinc-50 px-6 py-2 dark:bg-zinc-800"
+                                ></th>
                                 <template v-if="activeTab === 't1'">
                                     <th
                                         v-for="i in 6"
@@ -862,7 +913,9 @@ const overallStatus = computed(() => {
                                 :key="student.id"
                                 class="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
                             >
-                                <td class="px-6 py-3">
+                                <td
+                                    class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-6 py-1 dark:border-zinc-800 dark:bg-zinc-900"
+                                >
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-800"
@@ -877,168 +930,168 @@ const overallStatus = computed(() => {
                                 </td>
 
                                 <template v-if="activeTab === 't1'">
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ind_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ind_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ind_3"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ind_4"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ind_5"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ind_6"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t1_grp_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_grp_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_grp_3"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_grp_4"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_grp_5"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_grp_6"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t1_ref_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_ref_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t1_proj"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t1_eval"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
@@ -1046,168 +1099,168 @@ const overallStatus = computed(() => {
                                 </template>
 
                                 <template v-else-if="activeTab === 't2'">
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ind_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ind_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ind_3"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ind_4"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ind_5"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ind_6"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t2_grp_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_grp_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_grp_3"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_grp_4"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_grp_5"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_grp_6"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t2_ref_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_ref_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t2_proj"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t2_eval"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
@@ -1215,168 +1268,168 @@ const overallStatus = computed(() => {
                                 </template>
 
                                 <template v-else>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ind_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ind_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ind_3"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ind_4"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ind_5"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ind_6"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t3_grp_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_grp_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_grp_3"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_grp_4"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_grp_5"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_grp_6"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t3_ref_1"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_ref_2"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
                                     <td
-                                        class="border-l border-zinc-200 px-1 py-3 dark:border-zinc-800"
+                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
                                     >
                                         <input
                                             v-model="student.t3_proj"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
                                     </td>
-                                    <td class="px-1 py-3">
+                                    <td class="px-1 py-1">
                                         <input
                                             v-model="student.t3_eval"
                                             type="number"
                                             step="0.01"
-                                            min="0"
+                                            min="1"
                                             max="10"
                                             :class="inputClass"
                                         />
@@ -1384,7 +1437,7 @@ const overallStatus = computed(() => {
                                 </template>
 
                                 <td
-                                    class="border-l border-zinc-200 px-4 py-3 dark:border-zinc-800"
+                                    class="border-l border-zinc-200 px-4 py-1 dark:border-zinc-800"
                                 >
                                     <input
                                         v-model="student.observations"
@@ -1480,3 +1533,28 @@ const overallStatus = computed(() => {
         </form>
     </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    height: 10px;
+    display: block !important;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 5px;
+    border: 2px solid #f1f1f1;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Forzar visibilidad en otros navegadores */
+.custom-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: #bbb #f1f1f1;
+}
+</style>

@@ -14,7 +14,8 @@ import { request } from '@/routes/password';
 defineOptions({
     layout: {
         title: 'Bienvenido de nuevo',
-        description: 'Ingrese sus credenciales para acceder al sistema académico',
+        description:
+            'Ingrese sus credenciales para acceder al sistema académico',
     },
 });
 
@@ -44,10 +45,7 @@ defineProps<{
         <div class="grid gap-5">
             <!-- Correo -->
             <div class="grid gap-2">
-                <Label
-                    for="email"
-                    class="text-sm font-medium text-white"
-                >
+                <Label for="email" class="text-sm font-medium text-white">
                     Correo electrónico
                 </Label>
 
@@ -101,7 +99,10 @@ defineProps<{
 
             <!-- Recordarme -->
             <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center gap-3 text-sm text-white/80">
+                <Label
+                    for="remember"
+                    class="flex items-center gap-3 text-sm text-white/80"
+                >
                     <Checkbox id="remember" name="remember" :tabindex="3" />
                     <span>Recordarme</span>
                 </Label>
