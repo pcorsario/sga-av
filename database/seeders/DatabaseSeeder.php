@@ -43,8 +43,8 @@ class DatabaseSeeder extends Seeder
         ]);
         $student->assignRole(\App\Enums\RoleEnum::Estudiante->value);
 
-        $this->call(AcademicSeeder::class);
-        $this->call(EnrollmentSeeder::class);
+//        $this->call(AcademicSeeder::class);
+  //      $this->call(EnrollmentSeeder::class);
         
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AcademicSeeder extends Seeder
 {
@@ -76,11 +77,14 @@ class AcademicSeeder extends Seeder
         $octavoEgb = Course::where('name', '8vo EGB')->first();
         if ($octavoEgb) {
             for ($i = 1; $i <= 40; $i++) {
-                $newStudent = User::factory()->create([
-                    'name' => "Estudiante {$octavoEgb->name} {$i}",
-                    'email' => "estudiante8vo{$i}@example.com",
-                    'password' => bcrypt('password'),
-                ]);
+                $newStudent = User::updateOrCreate(
+                    ['email' => "estudiante8vo{$i}@example.com"],
+                    [
+                        'name' => "Estudiante {$octavoEgb->name} {$i}",
+                        'password' => Hash::make('password'),
+                        'email_verified_at' => now(),
+                    ]
+                );
                 $newStudent->assignRole(RoleEnum::Estudiante->value);
 
                 Enrollment::firstOrCreate([

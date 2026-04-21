@@ -18,7 +18,7 @@ class TeamFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->unique()->company();
+        $name = 'Team '.Str::upper(Str::random(8));
 
         return [
             'name' => $name,
