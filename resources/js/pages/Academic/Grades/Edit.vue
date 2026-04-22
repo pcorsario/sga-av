@@ -18,6 +18,7 @@ const props = defineProps<{
 }>();
 
 const activeTab = ref<'diag' | 't1' | 't2' | 't3'>('diag');
+const activeSubTab = ref<'ind' | 'grp' | 'trimestral'>('ind');
 const isSaving = ref(false);
 const lastSaved = ref<Date | null>(null);
 
@@ -168,6 +169,70 @@ const inputClass =
     'w-full rounded-none border border-zinc-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-1 py-1 text-xs min-w-[2.2rem]';
 const nameInputClass =
     'w-full text-[9px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded transition truncate uppercase [writing-mode:vertical-rl] rotate-180';
+
+const parseGrade = (val: any) => {
+    if (val === null || val === undefined || val === '') return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+};
+
+const calcPromedioBase = (student: any, term: string, type: 'ind' | 'grp') => {
+    let sum = 0;
+    let count = 0;
+    for (let i = 1; i <= 6; i++) {
+        const val = parseGrade(student[`${term}_${type}_${i}`]);
+        if (val !== null) {
+            sum += val;
+            count++;
+        }
+    }
+    return count > 0 ? sum / count : null;
+};
+
+const calcPromedioInsumos = (student: any, term: string) => {
+    const pInd = calcPromedioBase(student, term, 'ind');
+    const pGrp = calcPromedioBase(student, term, 'grp');
+    if (pInd === null && pGrp === null) return null;
+    if (pInd === null) return pGrp;
+    if (pGrp === null) return pInd;
+    return (pInd + pGrp) / 2;
+};
+
+const calcNuevoPromedio = (student: any, term: string, type: 'ind' | 'grp') => {
+    const pBase = calcPromedioBase(student, term, type);
+    const pIns = calcPromedioInsumos(student, term);
+    const ref = parseGrade(student[`${term}_ref_${type === 'ind' ? 1 : 2}`]);
+
+    if (pBase === null) return null;
+    if (pIns === null || pIns >= 7) return pBase;
+
+    if (ref !== null && ref > pBase && pBase < 7) {
+        return Math.trunc(((pBase + ref) / 2) * 100) / 100;
+    }
+    return pBase;
+};
+
+const calcPromedioParcial = (student: any, term: string) => {
+    const pInd = calcNuevoPromedio(student, term, 'ind');
+    const pGrp = calcNuevoPromedio(student, term, 'grp');
+
+    if (pInd === null && pGrp === null) return null;
+    if (pInd === null) return pGrp;
+    if (pGrp === null) return pInd;
+    return (pInd + pGrp) / 2;
+};
+
+const calcPromedioFinal = (student: any, term: string) => {
+    const pParcial = calcPromedioParcial(student, term);
+    const proj = parseGrade(student[`${term}_proj`]);
+    const evalGrade = parseGrade(student[`${term}_eval`]);
+
+    if (pParcial === null || proj === null || evalGrade === null) return null;
+
+    return (
+        Math.trunc((pParcial * 0.7 + proj * 0.1 + evalGrade * 0.2) * 100) / 100
+    );
+};
 
 const getStatus = (selections: Record<number, boolean>) => {
     const count = Object.values(selections).filter(Boolean).length;
@@ -640,824 +705,368 @@ const overallStatus = computed(() => {
                     </div>
                 </div>
 
-                <div
-                    v-else
-                    class="custom-scrollbar relative w-full overflow-x-auto pb-4"
-                >
-                    <table
-                        class="w-full min-w-[1400px] border-collapse text-left"
-                    >
-                        <thead
-                            class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"
-                        >
-                            <tr>
-                                <th
-                                    class="sticky left-0 z-30 bg-zinc-50 px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase dark:bg-zinc-800"
-                                >
-                                    Estudiante
-                                </th>
-                                <th
-                                    class="border-l border-zinc-200 px-3 py-4 text-center text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                    colspan="6"
-                                >
-                                    Indiv.
-                                </th>
-                                <th
-                                    class="border-l border-zinc-200 px-3 py-4 text-center text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                    colspan="6"
-                                >
-                                    Grup.
-                                </th>
-                                <th
-                                    class="border-l border-zinc-200 px-3 py-4 text-center text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                    colspan="2"
-                                >
-                                    Ref.
-                                </th>
-                                <th
-                                    class="border-l border-zinc-200 px-3 py-4 text-center text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                >
-                                    Proj.
-                                </th>
-                                <th
-                                    class="border-l border-zinc-200 px-3 py-4 text-center text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                >
-                                    Eval.
-                                </th>
-                                <th
-                                    class="border-l border-zinc-200 px-6 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                >
-                                    Obs.
-                                </th>
-                            </tr>
-                            <tr class="h-24 bg-zinc-50/50 dark:bg-zinc-800/30">
-                                <th
-                                    class="sticky left-0 z-30 bg-zinc-50 px-6 py-2 dark:bg-zinc-800"
-                                ></th>
-                                <template v-if="activeTab === 't1'">
-                                    <th
-                                        v-for="i in 6"
-                                        :key="'t1-ind-' + i"
-                                        class="min-w-[5rem] px-1 py-2 text-center"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t1[`ind_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Insumo ${i}`"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else-if="activeTab === 't2'">
-                                    <th
-                                        v-for="i in 6"
-                                        :key="'t2-ind-' + i"
-                                        class="min-w-[5rem] px-1 py-2 text-center"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t2[`ind_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Insumo ${i}`"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else>
-                                    <th
-                                        v-for="i in 6"
-                                        :key="'t3-ind-' + i"
-                                        class="min-w-[5rem] px-1 py-2 text-center"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t3[`ind_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Insumo ${i}`"
-                                        />
-                                    </th>
-                                </template>
-
-                                <template v-if="activeTab === 't1'">
-                                    <th
-                                        v-for="i in 6"
-                                        :key="'t1-grp-' + i"
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t1[`grp_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Grupo ${i}`"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else-if="activeTab === 't2'">
-                                    <th
-                                        v-for="i in 6"
-                                        :key="'t2-grp-' + i"
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t2[`grp_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Grupo ${i}`"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else>
-                                    <th
-                                        v-for="i in 6"
-                                        :key="'t3-grp-' + i"
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t3[`grp_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Grupo ${i}`"
-                                        />
-                                    </th>
-                                </template>
-
-                                <template v-if="activeTab === 't1'">
-                                    <th
-                                        v-for="i in 2"
-                                        :key="'t1-ref-' + i"
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t1[`ref_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Ref. ${i}`"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else-if="activeTab === 't2'">
-                                    <th
-                                        v-for="i in 2"
-                                        :key="'t2-ref-' + i"
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t2[`ref_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Ref. ${i}`"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else>
-                                    <th
-                                        v-for="i in 2"
-                                        :key="'t3-ref-' + i"
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="
-                                                form.insumo_names.t3[`ref_${i}`]
-                                            "
-                                            :class="nameInputClass"
-                                            :placeholder="`Ref. ${i}`"
-                                        />
-                                    </th>
-                                </template>
-
-                                <template v-if="activeTab === 't1'">
-                                    <th
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="form.insumo_names.t1.proj"
-                                            :class="nameInputClass"
-                                            placeholder="Proyecto"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else-if="activeTab === 't2'">
-                                    <th
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="form.insumo_names.t2.proj"
-                                            :class="nameInputClass"
-                                            placeholder="Proyecto"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else>
-                                    <th
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="form.insumo_names.t3.proj"
-                                            :class="nameInputClass"
-                                            placeholder="Proyecto"
-                                        />
-                                    </th>
-                                </template>
-
-                                <template v-if="activeTab === 't1'">
-                                    <th
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="form.insumo_names.t1.eval"
-                                            :class="nameInputClass"
-                                            placeholder="Evaluación"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else-if="activeTab === 't2'">
-                                    <th
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="form.insumo_names.t2.eval"
-                                            :class="nameInputClass"
-                                            placeholder="Evaluación"
-                                        />
-                                    </th>
-                                </template>
-                                <template v-else>
-                                    <th
-                                        class="min-w-[5rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="form.insumo_names.t3.eval"
-                                            :class="nameInputClass"
-                                            placeholder="Evaluación"
-                                        />
-                                    </th>
-                                </template>
-
-                                <th
-                                    class="border-l border-zinc-200 px-4 py-2 dark:border-zinc-800"
-                                ></th>
-                            </tr>
-                        </thead>
-                        <tbody
-                            class="divide-y divide-zinc-100 dark:divide-zinc-800"
-                        >
-                            <tr
-                                v-for="(student, index) in form.grades"
-                                :key="student.id"
-                                class="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
+                <div v-else>
+                    <div class="border-b border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                @click="activeSubTab = 'ind'"
+                                :class="[
+                                    'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                    activeSubTab === 'ind'
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500'
+                                        : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                                ]"
                             >
-                                <td
-                                    class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-6 py-1 dark:border-zinc-800 dark:bg-zinc-900"
-                                >
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-800"
+                                Insumos Individuales
+                            </button>
+                            <button
+                                type="button"
+                                @click="activeSubTab = 'grp'"
+                                :class="[
+                                    'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                    activeSubTab === 'grp'
+                                        ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20 ring-1 ring-purple-500'
+                                        : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                                ]"
+                            >
+                                Insumos Grupales
+                            </button>
+                            <button
+                                type="button"
+                                @click="activeSubTab = 'trimestral'"
+                                :class="[
+                                    'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                    activeSubTab === 'trimestral'
+                                        ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-500'
+                                        : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                                ]"
+                            >
+                                Resumen Trimestral
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="custom-scrollbar relative w-full overflow-x-auto pb-4">
+                        <table
+                            class="w-full border-collapse text-left"
+                            :class="{ 'min-w-[800px]': activeSubTab !== 'trimestral', 'min-w-[600px]': activeSubTab === 'trimestral' }"
+                        >
+                            <thead
+                                class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"
+                            >
+                                <!-- Encabezados Generales -->
+                                <tr>
+                                    <th
+                                        class="sticky left-0 z-30 bg-zinc-50 px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase dark:bg-zinc-800"
+                                    >
+                                        Estudiante
+                                    </th>
+
+                                    <template v-if="activeSubTab === 'ind'">
+                                        <th
+                                            class="border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
+                                            colspan="6"
                                         >
-                                            {{ index + 1 }}
+                                            Insumos Individuales
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-blue-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30"
+                                        >
+                                            Prom. Indiv.
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
+                                        >
+                                            Ref. Indiv.
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
+                                        >
+                                            Nuevo P. Indiv.
+                                        </th>
+                                    </template>
+
+                                    <template v-if="activeSubTab === 'grp'">
+                                        <th
+                                            class="border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
+                                            colspan="6"
+                                        >
+                                            Insumos Grupales
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-purple-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30"
+                                        >
+                                            Prom. Grup.
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
+                                        >
+                                            Ref. Grup.
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
+                                        >
+                                            Nuevo P. Grup.
+                                        </th>
+                                    </template>
+
+                                    <template v-if="activeSubTab === 'trimestral'">
+                                        <th
+                                            class="border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
+                                        >
+                                            P. Indiv.
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
+                                        >
+                                            P. Grup.
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-amber-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30"
+                                        >
+                                            Prom. Parcial (70%)
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-indigo-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10"
+                                        >
+                                            Proyecto (10%)
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-rose-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10"
+                                        >
+                                            Evaluación (20%)
+                                        </th>
+                                        <th
+                                            class="border-l border-zinc-200 bg-emerald-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30"
+                                        >
+                                            Prom. Final
+                                        </th>
+                                    </template>
+
+                                    <th
+                                        class="border-l border-zinc-200 px-6 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
+                                    >
+                                        Obs.
+                                    </th>
+                                </tr>
+
+                                <!-- Sub-encabezados (Inputs de Nombres) -->
+                                <tr class="h-24 bg-zinc-50/50 dark:bg-zinc-800/30">
+                                    <th
+                                        class="sticky left-0 z-30 bg-zinc-50 px-6 py-2 dark:bg-zinc-800"
+                                    ></th>
+
+                                    <template v-if="activeSubTab === 'ind'">
+                                        <th
+                                            v-for="i in 6"
+                                            :key="'ind-' + i"
+                                            class="min-w-[4rem] px-1 py-2 text-center"
+                                        >
+                                            <input
+                                                v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'][`ind_${i}`]"
+                                                :class="nameInputClass"
+                                                :placeholder="`Insumo ${i}`"
+                                            />
+                                        </th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                            <input
+                                                v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].ref_1"
+                                                :class="nameInputClass"
+                                                placeholder="Ref. Indiv."
+                                            />
+                                        </th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                    </template>
+
+                                    <template v-if="activeSubTab === 'grp'">
+                                        <th
+                                            v-for="i in 6"
+                                            :key="'grp-' + i"
+                                            class="min-w-[4rem] px-1 py-2 text-center"
+                                        >
+                                            <input
+                                                v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'][`grp_${i}`]"
+                                                :class="nameInputClass"
+                                                :placeholder="`Grupo ${i}`"
+                                            />
+                                        </th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                            <input
+                                                v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].ref_2"
+                                                :class="nameInputClass"
+                                                placeholder="Ref. Grup."
+                                            />
+                                        </th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                    </template>
+
+                                    <template v-if="activeSubTab === 'trimestral'">
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                            <input
+                                                v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].proj"
+                                                :class="nameInputClass"
+                                                placeholder="Proyecto"
+                                            />
+                                        </th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                            <input
+                                                v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].eval"
+                                                :class="nameInputClass"
+                                                placeholder="Evaluación"
+                                            />
+                                        </th>
+                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                    </template>
+
+                                    <th class="border-l border-zinc-200 px-4 py-2 dark:border-zinc-800"></th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                class="divide-y divide-zinc-100 dark:divide-zinc-800"
+                            >
+                                <tr
+                                    v-for="(student, index) in form.grades"
+                                    :key="student.id"
+                                    class="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
+                                >
+                                    <td
+                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-6 py-1 dark:border-zinc-800 dark:bg-zinc-900"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-800"
+                                            >
+                                                {{ index + 1 }}
+                                            </div>
+                                            <span
+                                                class="font-bold whitespace-nowrap text-zinc-800 dark:text-zinc-200"
+                                                >{{ student.name }}</span
+                                            >
                                         </div>
-                                        <span
-                                            class="font-bold whitespace-nowrap text-zinc-800 dark:text-zinc-200"
-                                            >{{ student.name }}</span
-                                        >
-                                    </div>
-                                </td>
+                                    </td>
 
-                                <template v-if="activeTab === 't1'">
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ind_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ind_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ind_3"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ind_4"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ind_5"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ind_6"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t1_grp_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_grp_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_grp_3"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_grp_4"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_grp_5"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_grp_6"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t1_ref_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_ref_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t1_proj"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t1_eval"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                </template>
+                                    <template v-if="activeSubTab === 'ind'">
+                                        <td v-for="i in 6" :key="'ind-' + i" class="px-1 py-1">
+                                            <input
+                                                v-model="(student as any)[activeTab + '_ind_' + i]"
+                                                type="number"
+                                                step="0.01"
+                                                min="1"
+                                                max="10"
+                                                :class="inputClass"
+                                            />
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400 bg-blue-50/20 dark:bg-blue-900/5">
+                                            {{ calcPromedioBase(student, activeTab, 'ind')?.toFixed(2) || '-' }}
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
+                                            <input
+                                                v-model="(student as any)[activeTab + '_ref_1']"
+                                                type="number"
+                                                step="0.01"
+                                                min="1"
+                                                max="10"
+                                                :class="inputClass"
+                                            />
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
+                                            {{ calcNuevoPromedio(student, activeTab, 'ind')?.toFixed(2) || '-' }}
+                                        </td>
+                                    </template>
 
-                                <template v-else-if="activeTab === 't2'">
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ind_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ind_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ind_3"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ind_4"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ind_5"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ind_6"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t2_grp_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_grp_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_grp_3"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_grp_4"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_grp_5"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_grp_6"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t2_ref_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_ref_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t2_proj"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t2_eval"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                </template>
+                                    <template v-if="activeSubTab === 'grp'">
+                                        <td v-for="i in 6" :key="'grp-' + i" class="px-1 py-1">
+                                            <input
+                                                v-model="(student as any)[activeTab + '_grp_' + i]"
+                                                type="number"
+                                                step="0.01"
+                                                min="1"
+                                                max="10"
+                                                :class="inputClass"
+                                            />
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400 bg-purple-50/20 dark:bg-purple-900/5">
+                                            {{ calcPromedioBase(student, activeTab, 'grp')?.toFixed(2) || '-' }}
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
+                                            <input
+                                                v-model="(student as any)[activeTab + '_ref_2']"
+                                                type="number"
+                                                step="0.01"
+                                                min="1"
+                                                max="10"
+                                                :class="inputClass"
+                                            />
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
+                                            {{ calcNuevoPromedio(student, activeTab, 'grp')?.toFixed(2) || '-' }}
+                                        </td>
+                                    </template>
 
-                                <template v-else>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ind_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ind_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ind_3"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ind_4"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ind_5"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ind_6"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t3_grp_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_grp_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_grp_3"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_grp_4"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_grp_5"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_grp_6"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t3_ref_1"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_ref_2"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td
-                                        class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.t3_proj"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                    <td class="px-1 py-1">
-                                        <input
-                                            v-model="student.t3_eval"
-                                            type="number"
-                                            step="0.01"
-                                            min="1"
-                                            max="10"
-                                            :class="inputClass"
-                                        />
-                                    </td>
-                                </template>
+                                    <template v-if="activeSubTab === 'trimestral'">
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400">
+                                            {{ calcNuevoPromedio(student, activeTab, 'ind')?.toFixed(2) || '-' }}
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400">
+                                            {{ calcNuevoPromedio(student, activeTab, 'grp')?.toFixed(2) || '-' }}
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-amber-600 dark:border-zinc-800 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-900/10">
+                                            {{ calcPromedioParcial(student, activeTab)?.toFixed(2) || '-' }}
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
+                                            <input
+                                                v-model="(student as any)[activeTab + '_proj']"
+                                                type="number"
+                                                step="0.01"
+                                                min="1"
+                                                max="10"
+                                                :class="inputClass"
+                                            />
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
+                                            <input
+                                                v-model="(student as any)[activeTab + '_eval']"
+                                                type="number"
+                                                step="0.01"
+                                                min="1"
+                                                max="10"
+                                                :class="inputClass"
+                                            />
+                                        </td>
+                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-100/30 dark:bg-emerald-900/30">
+                                            {{ calcPromedioFinal(student, activeTab)?.toFixed(2) || '-' }}
+                                        </td>
+                                    </template>
 
-                                <td
-                                    class="border-l border-zinc-200 px-4 py-1 dark:border-zinc-800"
-                                >
-                                    <input
-                                        v-model="student.observations"
-                                        type="text"
-                                        placeholder="..."
-                                        class="w-full rounded-xl border-zinc-200 bg-zinc-50 text-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
-                                    />
-                                </td>
-                            </tr>
-                            <tr v-if="form.grades.length === 0">
-                                <td
-                                    colspan="18"
-                                    class="px-6 py-12 text-center text-zinc-500 italic"
-                                >
-                                    No hay estudiantes matriculados en este
-                                    curso.
-                                </td>
-                            </tr>
-                        </tbody>
+                                    <td
+                                        class="border-l border-zinc-200 px-4 py-1 dark:border-zinc-800"
+                                    >
+                                        <input
+                                            v-model="student.observations"
+                                            type="text"
+                                            placeholder="..."
+                                            class="w-full rounded-xl border-zinc-200 bg-zinc-50 text-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
+                                        />
+                                    </td>
+                                </tr>
+                                <tr v-if="form.grades.length === 0">
+                                    <td
+                                        colspan="10"
+                                        class="px-6 py-12 text-center text-zinc-500 italic"
+                                    >
+                                        No hay estudiantes matriculados en este
+                                        curso.
+                                    </td>
+                                </tr>
+                            </tbody>
                     </table>
+                </div>
                 </div>
             </div>
 
