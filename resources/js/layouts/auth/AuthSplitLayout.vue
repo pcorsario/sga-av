@@ -17,7 +17,7 @@ defineProps<{
         <div class="relative hidden min-h-dvh overflow-hidden lg:flex">
             <!-- Imagen de fondo -->
             <img
-                src="/images/institucion.jpg"
+                src="/images/institucion.JPG"
                 alt="Institución educativa"
                 class="absolute inset-0 h-full w-full object-cover"
             />
