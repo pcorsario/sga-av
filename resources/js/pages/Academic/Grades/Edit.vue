@@ -763,32 +763,32 @@ const overallStatus = computed(() => {
                                 class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"
                             >
                                 <!-- Encabezados Generales -->
-                                <tr>
+                                <tr class="sticky top-0 z-40 bg-zinc-50 dark:bg-zinc-800 shadow-sm">
                                     <th
-                                        class="sticky left-0 z-30 bg-zinc-50 px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase dark:bg-zinc-800"
+                                        class="sticky left-0 top-0 z-50 bg-zinc-50 px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase dark:bg-zinc-800 shadow-sm"
                                     >
                                         Estudiante
                                     </th>
 
                                     <template v-if="activeSubTab === 'ind'">
                                         <th
-                                            class="border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
                                             colspan="6"
                                         >
                                             Insumos Individuales
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-blue-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30"
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30"
                                         >
                                             Prom. Indiv.
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
                                         >
                                             Ref. Indiv.
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
                                         >
                                             Nuevo P. Indiv.
                                         </th>
@@ -796,23 +796,23 @@ const overallStatus = computed(() => {
 
                                     <template v-if="activeSubTab === 'grp'">
                                         <th
-                                            class="border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
                                             colspan="6"
                                         >
                                             Insumos Grupales
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-purple-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30"
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30"
                                         >
                                             Prom. Grup.
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
                                         >
                                             Ref. Grup.
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
                                         >
                                             Nuevo P. Grup.
                                         </th>
@@ -820,55 +820,55 @@ const overallStatus = computed(() => {
 
                                     <template v-if="activeSubTab === 'trimestral'">
                                         <th
-                                            class="border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
                                         >
                                             P. Indiv.
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
                                         >
                                             P. Grup.
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-amber-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30"
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30"
                                         >
                                             Prom. Parcial (70%)
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-indigo-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-indigo-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10"
                                         >
                                             Proyecto (10%)
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-rose-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10"
+                                            class="sticky top-0 border-l border-zinc-200 bg-rose-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10"
                                         >
                                             Evaluación (20%)
                                         </th>
                                         <th
-                                            class="border-l border-zinc-200 bg-emerald-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30"
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30"
                                         >
                                             Prom. Final
                                         </th>
                                     </template>
 
                                     <th
-                                        class="border-l border-zinc-200 px-6 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
+                                        class="sticky top-0 border-l border-zinc-200 px-6 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
                                     >
                                         Obs.
                                     </th>
                                 </tr>
 
                                 <!-- Sub-encabezados (Inputs de Nombres) -->
-                                <tr class="h-24 bg-zinc-50/50 dark:bg-zinc-800/30">
+                                <tr class="sticky top-[53px] z-40 h-24 bg-zinc-50 dark:bg-zinc-800 shadow-sm">
                                     <th
-                                        class="sticky left-0 z-30 bg-zinc-50 px-6 py-2 dark:bg-zinc-800"
+                                        class="sticky left-0 z-50 bg-zinc-50 px-6 py-2 dark:bg-zinc-800 shadow-sm border-b border-zinc-200 dark:border-zinc-700"
                                     ></th>
 
                                     <template v-if="activeSubTab === 'ind'">
                                         <th
                                             v-for="i in 6"
                                             :key="'ind-' + i"
-                                            class="min-w-[4rem] px-1 py-2 text-center"
+                                            class="sticky top-[53px] min-w-[4rem] px-1 py-2 text-center border-b border-zinc-200 dark:border-zinc-700"
                                         >
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'][`ind_${i}`]"
