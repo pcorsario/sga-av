@@ -13,6 +13,7 @@ git pull origin main
 
 # Instalar dependencias de PHP
 echo "📦 Instalando dependencias de PHP (Composer)..."
+export COMPOSER_ALLOW_SUPERUSER=1
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Ejecutar migraciones

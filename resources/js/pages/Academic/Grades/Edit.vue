@@ -167,14 +167,20 @@ defineOptions({
 });
 
 const inputClass =
-    'w-full rounded-none border border-zinc-400 dark:border-zinc-500 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-1 py-1 text-xs min-w-[2.2rem]';
+    'w-full rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-1 py-1.5 text-xs min-w-[2.5rem] shadow-sm';
 const nameInputClass =
-    'w-full text-[9px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded transition truncate uppercase [writing-mode:vertical-rl] rotate-180';
+    'w-full text-[9px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded-lg transition truncate uppercase [writing-mode:vertical-rl] rotate-180';
 
 const parseGrade = (val: any) => {
     if (val === null || val === undefined || val === '') return null;
-    const num = Number(val);
-    return isNaN(num) ? null : num;
+    let num = Number(val);
+    if (isNaN(num)) return null;
+
+    // Clamping entre 0 y 10 (ajustable a 1 si es necesario)
+    if (num > 10) num = 10;
+    if (num < 0) num = 0;
+
+    return num;
 };
 
 const calcPromedioBase = (student: any, term: string, type: 'ind' | 'grp') => {
@@ -961,6 +967,7 @@ const overallStatus = computed(() => {
                                                 min="1"
                                                 max="10"
                                                 :class="inputClass"
+                                                @input="(student as any)[activeTab + '_ind_' + i] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
                                         </td>
                                         <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400 bg-blue-50/20 dark:bg-blue-900/5">
@@ -974,6 +981,7 @@ const overallStatus = computed(() => {
                                                 min="1"
                                                 max="10"
                                                 :class="inputClass"
+                                                @input="(student as any)[activeTab + '_ref_1'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
                                         </td>
                                         <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
@@ -990,6 +998,7 @@ const overallStatus = computed(() => {
                                                 min="1"
                                                 max="10"
                                                 :class="inputClass"
+                                                @input="(student as any)[activeTab + '_grp_' + i] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
                                         </td>
                                         <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400 bg-purple-50/20 dark:bg-purple-900/5">
@@ -1003,6 +1012,7 @@ const overallStatus = computed(() => {
                                                 min="1"
                                                 max="10"
                                                 :class="inputClass"
+                                                @input="(student as any)[activeTab + '_ref_2'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
                                         </td>
                                         <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
@@ -1028,6 +1038,7 @@ const overallStatus = computed(() => {
                                                 min="1"
                                                 max="10"
                                                 :class="inputClass"
+                                                @input="(student as any)[activeTab + '_proj'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
                                         </td>
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
@@ -1038,6 +1049,7 @@ const overallStatus = computed(() => {
                                                 min="1"
                                                 max="10"
                                                 :class="inputClass"
+                                                @input="(student as any)[activeTab + '_eval'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
                                         </td>
                                         <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-100/30 dark:bg-emerald-900/30">
