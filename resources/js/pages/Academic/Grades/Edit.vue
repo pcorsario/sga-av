@@ -418,7 +418,7 @@ const overallStatus = computed(() => {
 
         <form @submit.prevent="submit" class="space-y-6">
             <div
-                class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+                class="rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
             >
                 <div class="border-b border-zinc-200 dark:border-zinc-800">
                     <nav class="flex">
@@ -754,7 +754,7 @@ const overallStatus = computed(() => {
                         </div>
                     </div>
 
-                    <div class="custom-scrollbar relative w-full overflow-x-auto pb-4">
+                    <div class="custom-scrollbar relative w-full overflow-x-auto pb-4 rounded-b-3xl">
                         <table
                             class="w-full border-collapse text-left"
                             :class="{ 'min-w-[800px]': activeSubTab !== 'trimestral', 'min-w-[600px]': activeSubTab === 'trimestral' }"
