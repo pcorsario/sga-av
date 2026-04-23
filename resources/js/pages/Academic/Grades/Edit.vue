@@ -16,6 +16,7 @@ const props = defineProps<{
     studentDcds: any;
     insumoNames: any;
 }>();
+//Prueba para trackear cambios
 
 const activeTab = ref<'diag' | 't1' | 't2' | 't3'>('diag');
 const activeSubTab = ref<'ind' | 'grp' | 'trimestral'>('ind');
