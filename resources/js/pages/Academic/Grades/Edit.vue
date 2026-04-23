@@ -167,7 +167,7 @@ defineOptions({
 });
 
 const inputClass =
-    'w-full rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-1 py-1.5 text-xs min-w-[2.5rem] shadow-sm';
+    'w-12 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-0.5 py-1.5 text-xs shadow-sm';
 const nameInputClass =
     'w-full text-[9px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded-lg transition truncate uppercase [writing-mode:vertical-rl] rotate-180';
 
@@ -962,10 +962,7 @@ const overallStatus = computed(() => {
                                         <td v-for="i in 6" :key="'ind-' + i" class="px-1 py-1">
                                             <input
                                                 v-model="(student as any)[activeTab + '_ind_' + i]"
-                                                type="number"
-                                                step="0.01"
-                                                min="1"
-                                                max="10"
+                                                type="text"
                                                 :class="inputClass"
                                                 @input="(student as any)[activeTab + '_ind_' + i] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
@@ -976,10 +973,7 @@ const overallStatus = computed(() => {
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
                                             <input
                                                 v-model="(student as any)[activeTab + '_ref_1']"
-                                                type="number"
-                                                step="0.01"
-                                                min="1"
-                                                max="10"
+                                                type="text"
                                                 :class="inputClass"
                                                 @input="(student as any)[activeTab + '_ref_1'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
@@ -993,10 +987,7 @@ const overallStatus = computed(() => {
                                         <td v-for="i in 6" :key="'grp-' + i" class="px-1 py-1">
                                             <input
                                                 v-model="(student as any)[activeTab + '_grp_' + i]"
-                                                type="number"
-                                                step="0.01"
-                                                min="1"
-                                                max="10"
+                                                type="text"
                                                 :class="inputClass"
                                                 @input="(student as any)[activeTab + '_grp_' + i] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
@@ -1007,10 +998,7 @@ const overallStatus = computed(() => {
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
                                             <input
                                                 v-model="(student as any)[activeTab + '_ref_2']"
-                                                type="number"
-                                                step="0.01"
-                                                min="1"
-                                                max="10"
+                                                type="text"
                                                 :class="inputClass"
                                                 @input="(student as any)[activeTab + '_ref_2'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
@@ -1033,10 +1021,7 @@ const overallStatus = computed(() => {
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
                                             <input
                                                 v-model="(student as any)[activeTab + '_proj']"
-                                                type="number"
-                                                step="0.01"
-                                                min="1"
-                                                max="10"
+                                                type="text"
                                                 :class="inputClass"
                                                 @input="(student as any)[activeTab + '_proj'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
@@ -1044,10 +1029,7 @@ const overallStatus = computed(() => {
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
                                             <input
                                                 v-model="(student as any)[activeTab + '_eval']"
-                                                type="number"
-                                                step="0.01"
-                                                min="1"
-                                                max="10"
+                                                type="text"
                                                 :class="inputClass"
                                                 @input="(student as any)[activeTab + '_eval'] = parseGrade(($event.target as HTMLInputElement).value)"
                                             />
