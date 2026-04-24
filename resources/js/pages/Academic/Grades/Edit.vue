@@ -330,8 +330,8 @@ const overallStatus = computed(() => {
 <template>
     <Head :title="`Registrar Notas - ${courseSubject.subject.name}`" />
 
-    <div class="mx-auto max-w-[1800px] p-6">
-        <div class="mb-8 flex items-center justify-between">
+    <div class="mx-auto flex h-[calc(100vh-4rem)] w-full max-w-[1800px] flex-col p-4 md:p-6">
+        <div class="mb-6 flex flex-shrink-0 items-center justify-between">
             <div>
                 <h1 class="text-3xl font-black text-zinc-900 dark:text-zinc-50">
                     {{ courseSubject.subject.name }}
@@ -416,11 +416,11 @@ const overallStatus = computed(() => {
             </div>
         </div>
 
-        <form @submit.prevent="submit" class="space-y-6">
+        <form @submit.prevent="submit" class="flex min-h-0 min-w-0 flex-1 flex-col">
             <div
-                class="rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+                class="flex min-h-0 min-w-0 flex-1 flex-col rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
             >
-                <div class="border-b border-zinc-200 dark:border-zinc-800">
+                <div class="flex-shrink-0 border-b border-zinc-200 dark:border-zinc-800">
                     <nav class="flex">
                         <button
                             type="button"
@@ -473,15 +473,15 @@ const overallStatus = computed(() => {
                     </nav>
                 </div>
 
-                <div v-if="activeTab === 'diag'" class="p-6">
-                    <div class="custom-scrollbar relative overflow-x-auto pb-4">
+                <div v-if="activeTab === 'diag'" class="flex min-h-0 min-w-0 flex-1 flex-col p-4 md:p-6">
+                    <div class="custom-scrollbar relative flex-1 min-w-0 overflow-auto pb-4">
                         <table class="w-full min-w-[1000px] text-left">
-                            <thead>
+                            <thead class="sticky top-0 z-40 bg-zinc-50 dark:bg-zinc-900">
                                 <tr
                                     class="border-b-2 border-zinc-300 dark:border-zinc-600"
                                 >
                                     <th
-                                        class="sticky left-0 z-30 w-64 border-r border-zinc-200 bg-zinc-50 py-1 pr-4 text-sm font-black text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                                        class="sticky left-0 z-50 w-32 border-r border-zinc-200 bg-zinc-50 px-2 py-4 text-[10px] font-black text-zinc-600 sm:w-64 sm:px-6 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                                     >
                                         Estudiante
                                     </th>
@@ -522,18 +522,20 @@ const overallStatus = computed(() => {
                                     class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
                                 >
                                     <td
-                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white py-2 pr-4 dark:border-zinc-800 dark:bg-zinc-900"
+                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-2 py-2 sm:px-4 dark:border-zinc-800 dark:bg-zinc-900"
                                     >
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex items-center gap-2 sm:gap-3">
                                             <div
-                                                class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-800"
+                                                class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-500 sm:h-8 sm:w-8 sm:rounded-lg sm:text-xs dark:bg-zinc-800"
                                             >
                                                 {{ index + 1 }}
                                             </div>
-                                            <span
-                                                class="text-xs font-bold text-zinc-800 dark:text-zinc-200"
-                                                >{{ student.name }}</span
-                                            >
+                                            <div class="min-w-0 flex-1">
+                                                <p
+                                                    class="truncate text-[9px] font-bold text-zinc-800 sm:text-xs dark:text-zinc-200"
+                                                    >{{ student.name }}</p
+                                                >
+                                            </div>
                                         </div>
                                     </td>
                                     <td
@@ -653,67 +655,67 @@ const overallStatus = computed(() => {
                         </table>
                     </div>
 
-                    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="mt-4 grid flex-shrink-0 grid-cols-3 gap-2 sm:mt-6 sm:gap-4">
                         <div
-                            class="rounded-2xl bg-emerald-100 p-4 dark:bg-emerald-900/30"
+                            class="rounded-xl bg-emerald-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-emerald-900/30"
                         >
                             <p
-                                class="text-xs font-black text-emerald-600 uppercase dark:text-emerald-400"
+                                class="text-[8px] font-black text-emerald-600 uppercase sm:text-xs dark:text-emerald-400"
                             >
                                 Logrado
                             </p>
                             <p
-                                class="text-2xl font-black text-emerald-700 dark:text-emerald-300"
+                                class="text-lg font-black text-emerald-700 sm:text-2xl dark:text-emerald-300"
                             >
                                 >69%
                             </p>
                             <p
-                                class="text-xs text-emerald-600 dark:text-emerald-400"
+                                class="hidden text-[10px] text-emerald-600 sm:block sm:text-xs dark:text-emerald-400"
                             >
                                 Dominio suficiente
                             </p>
                         </div>
                         <div
-                            class="rounded-2xl bg-amber-100 p-4 dark:bg-amber-900/30"
+                            class="rounded-xl bg-amber-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-amber-900/30"
                         >
                             <p
-                                class="text-xs font-black text-amber-600 uppercase dark:text-amber-400"
+                                class="text-[8px] font-black text-amber-600 uppercase sm:text-xs dark:text-amber-400"
                             >
                                 En Proceso
                             </p>
                             <p
-                                class="text-2xl font-black text-amber-700 dark:text-amber-300"
+                                class="text-lg font-black text-amber-700 sm:text-2xl dark:text-amber-300"
                             >
                                 39-69%
                             </p>
                             <p
-                                class="text-xs text-amber-600 dark:text-amber-400"
+                                class="hidden text-[10px] text-amber-600 sm:block sm:text-xs dark:text-amber-400"
                             >
                                 Requiere refuerzo
                             </p>
                         </div>
                         <div
-                            class="rounded-2xl bg-red-100 p-4 dark:bg-red-900/30"
+                            class="rounded-xl bg-red-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-red-900/30"
                         >
                             <p
-                                class="text-xs font-black text-red-600 uppercase dark:text-red-400"
+                                class="text-[8px] font-black text-red-600 uppercase sm:text-xs dark:text-red-400"
                             >
                                 Iniciado
                             </p>
                             <p
-                                class="text-2xl font-black text-red-700 dark:text-red-300"
+                                class="text-lg font-black text-red-700 sm:text-2xl dark:text-red-300"
                             >
                                 <39%
                             </p>
-                            <p class="text-xs text-red-600 dark:text-red-400">
+                            <p class="hidden text-[10px] text-red-600 sm:block sm:text-xs dark:text-red-400">
                                 Necesita apoyo
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div v-else>
-                    <div class="border-b border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
+                <div v-else class="flex min-h-0 min-w-0 flex-1 flex-col">
+                    <div class="flex-shrink-0 border-b border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
                         <div class="flex flex-wrap gap-2">
                             <button
                                 type="button"
@@ -754,7 +756,7 @@ const overallStatus = computed(() => {
                         </div>
                     </div>
 
-                    <div class="custom-scrollbar relative w-full overflow-x-auto pb-4 rounded-b-3xl">
+                    <div class="custom-scrollbar relative flex-1 min-w-0 overflow-auto rounded-b-3xl pb-4">
                         <table
                             class="w-full border-collapse text-left"
                             :class="{ 'min-w-[800px]': activeSubTab !== 'trimestral', 'min-w-[600px]': activeSubTab === 'trimestral' }"
@@ -763,9 +765,9 @@ const overallStatus = computed(() => {
                                 class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"
                             >
                                 <!-- Encabezados Generales -->
-                                <tr class="sticky top-0 z-40 bg-zinc-50 dark:bg-zinc-800 shadow-sm">
+                                <tr class="sticky top-0 z-40 bg-zinc-50 shadow-sm dark:bg-zinc-800">
                                     <th
-                                        class="sticky left-0 top-0 z-50 bg-zinc-50 px-6 py-4 text-[10px] font-black tracking-widest whitespace-nowrap text-zinc-400 uppercase dark:bg-zinc-800 shadow-sm"
+                                        class="sticky left-0 top-0 z-50 w-32 bg-zinc-50 px-2 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase shadow-sm sm:w-64 sm:px-6 dark:bg-zinc-800"
                                     >
                                         Estudiante
                                     </th>
@@ -859,16 +861,16 @@ const overallStatus = computed(() => {
                                 </tr>
 
                                 <!-- Sub-encabezados (Inputs de Nombres) -->
-                                <tr class="sticky top-[53px] z-40 h-24 bg-zinc-50 dark:bg-zinc-800 shadow-sm">
+                                <tr class="sticky top-[46px] z-40 h-20 bg-zinc-50 shadow-sm dark:bg-zinc-800">
                                     <th
-                                        class="sticky left-0 z-50 bg-zinc-50 px-6 py-2 dark:bg-zinc-800 shadow-sm border-b border-zinc-200 dark:border-zinc-700"
+                                        class="sticky left-0 z-50 border-b border-zinc-200 bg-zinc-50 px-2 py-2 shadow-sm sm:px-6 dark:border-zinc-700 dark:bg-zinc-800"
                                     ></th>
 
                                     <template v-if="activeSubTab === 'ind'">
                                         <th
                                             v-for="i in 6"
                                             :key="'ind-' + i"
-                                            class="sticky top-[53px] min-w-[4rem] px-1 py-2 text-center border-b border-zinc-200 dark:border-zinc-700"
+                                            class="sticky top-[46px] min-w-[3rem] border-b border-zinc-200 px-1 py-1 text-center sm:min-w-[4rem] sm:py-2 dark:border-zinc-700"
                                         >
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'][`ind_${i}`]"
@@ -943,18 +945,20 @@ const overallStatus = computed(() => {
                                     class="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
                                 >
                                     <td
-                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-6 py-1 dark:border-zinc-800 dark:bg-zinc-900"
+                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-2 py-1 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900"
                                     >
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex items-center gap-2 sm:gap-3">
                                             <div
-                                                class="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-500 dark:bg-zinc-800"
+                                                class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-500 sm:h-7 sm:w-7 sm:rounded-lg dark:bg-zinc-800"
                                             >
                                                 {{ index + 1 }}
                                             </div>
-                                            <span
-                                                class="font-bold whitespace-nowrap text-zinc-800 dark:text-zinc-200"
-                                                >{{ student.name }}</span
-                                            >
+                                            <div class="min-w-0 flex-1">
+                                                <p
+                                                    class="truncate text-[9px] font-bold text-zinc-800 sm:text-xs dark:text-zinc-200"
+                                                    >{{ student.name }}</p
+                                                >
+                                            </div>
                                         </div>
                                     </td>
 
