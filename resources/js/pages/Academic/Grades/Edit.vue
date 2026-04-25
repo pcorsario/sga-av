@@ -98,9 +98,9 @@ const getUpdateUrl = () => {
     return props.academic?.role === 'profesor'
         ? teachers.grades.update.url({ courseSubject: props.courseSubject.id })
         : grades.update.url({
-              current_team: props.currentTeam?.slug ?? '',
-              courseSubject: props.courseSubject.id,
-          });
+            current_team: props.currentTeam?.slug ?? '',
+            courseSubject: props.courseSubject.id,
+        });
 };
 
 const submit = () => {
@@ -155,8 +155,8 @@ defineOptions({
                     props.academic?.role === 'profesor'
                         ? teachers.dashboard.url()
                         : props.currentTeam
-                          ? dashboard(props.currentTeam.slug)
-                          : '/',
+                            ? dashboard(props.currentTeam.slug)
+                            : '/',
             },
             {
                 title: `Notas: ${props.courseSubject.subject.name}`,
@@ -173,21 +173,41 @@ const nameInputClass =
 
 const parseGrade = (val: any) => {
     if (val === null || val === undefined || val === '') return null;
-    let num = Number(val);
+
+    // Convertir a string para procesar separadores
+    let strVal = val.toString().replace(',', '.');
+
+    // Permitir estados intermedios mientras se escribe (ej: "8.")
+    // No convertimos a número inmediatamente si termina en punto para no borrarlo
+    if (
+        strVal.endsWith('.') ||
+        (strVal.includes('.') && strVal.endsWith('0'))
+    ) {
+        return strVal;
+    }
+
+    let num = Number(strVal);
     if (isNaN(num)) return null;
 
-    // Clamping entre 0 y 10 (ajustable a 1 si es necesario)
+    // Clamping entre 0 y 10
     if (num > 10) num = 10;
     if (num < 0) num = 0;
 
     return num;
 };
 
+const getNumericGrade = (val: any): number | null => {
+    if (val === null || val === undefined || val === '') return null;
+    let num = Number(val.toString().replace(',', '.'));
+    if (isNaN(num)) return null;
+    return Math.max(0, Math.min(10, num));
+};
+
 const calcPromedioBase = (student: any, term: string, type: 'ind' | 'grp') => {
     let sum = 0;
     let count = 0;
     for (let i = 1; i <= 6; i++) {
-        const val = parseGrade(student[`${term}_${type}_${i}`]);
+        const val = getNumericGrade(student[`${term}_${type}_${i}`]);
         if (val !== null) {
             sum += val;
             count++;
@@ -208,7 +228,9 @@ const calcPromedioInsumos = (student: any, term: string) => {
 const calcNuevoPromedio = (student: any, term: string, type: 'ind' | 'grp') => {
     const pBase = calcPromedioBase(student, term, type);
     const pIns = calcPromedioInsumos(student, term);
-    const ref = parseGrade(student[`${term}_ref_${type === 'ind' ? 1 : 2}`]);
+    const ref = getNumericGrade(
+        student[`${term}_ref_${type === 'ind' ? 1 : 2}`],
+    );
 
     if (pBase === null) return null;
     if (pIns === null || pIns >= 7) return pBase;
@@ -231,8 +253,8 @@ const calcPromedioParcial = (student: any, term: string) => {
 
 const calcPromedioFinal = (student: any, term: string) => {
     const pParcial = calcPromedioParcial(student, term);
-    const proj = parseGrade(student[`${term}_proj`]);
-    const evalGrade = parseGrade(student[`${term}_eval`]);
+    const proj = getNumericGrade(student[`${term}_proj`]);
+    const evalGrade = getNumericGrade(student[`${term}_eval`]);
 
     if (pParcial === null || proj === null || evalGrade === null) return null;
 
@@ -328,6 +350,7 @@ const overallStatus = computed(() => {
 </script>
 
 <template>
+
     <Head :title="`Registrar Notas - ${courseSubject.subject.name}`" />
 
     <div class="mx-auto flex h-[calc(100vh-4rem)] w-full max-w-[1800px] flex-col p-4 md:p-6">
@@ -343,264 +366,230 @@ const overallStatus = computed(() => {
             </div>
             <div class="hidden items-center gap-4 md:flex">
                 <!-- Indicador de Auto-guardado -->
-                <div
-                    v-if="isSaving || lastSaved"
-                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2 transition-all duration-500 dark:border-zinc-800 dark:bg-zinc-800/50"
-                >
+                <div v-if="isSaving || lastSaved"
+                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2 transition-all duration-500 dark:border-zinc-800 dark:bg-zinc-800/50">
                     <template v-if="isSaving">
-                        <div
-                            class="h-2 w-2 animate-pulse rounded-full bg-blue-500"
-                        ></div>
+                        <div class="h-2 w-2 animate-pulse rounded-full bg-blue-500"></div>
                         <span
-                            class="text-[10px] leading-none font-black tracking-widest text-zinc-500 uppercase"
-                            >Sincronizando...</span
-                        >
+                            class="text-[10px] leading-none font-black tracking-widest text-zinc-500 uppercase">Sincronizando...</span>
                     </template>
                     <template v-else-if="lastSaved">
                         <div class="flex items-center gap-1.5 text-emerald-500">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-3.5 w-3.5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                            >
-                                <path
-                                    fill-rule="evenodd"
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clip-rule="evenodd"
-                                />
+                                    clip-rule="evenodd" />
                             </svg>
                             <span
-                                class="text-[10px] leading-none font-black tracking-widest text-zinc-400 uppercase"
-                                >Cambios Guardados</span
-                            >
+                                class="text-[10px] leading-none font-black tracking-widest text-zinc-400 uppercase">Cambios
+                                Guardados</span>
                         </div>
                     </template>
                 </div>
 
                 <!-- Botón de Reporte PDF -->
-                <a
-                    v-if="activeTab === 'diag'"
-                    :href="
-                        academic?.role === 'profesor'
-                            ? teachers.grades.pdf.url({
-                                  courseSubject: props.courseSubject.id,
-                              })
-                            : grades.pdf.url({
-                                  current_team: props.currentTeam?.slug ?? '',
-                                  courseSubject: props.courseSubject.id,
-                              })
-                    "
-                    target="_blank"
-                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 text-red-500"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fill-rule="evenodd"
+                <a v-if="activeTab === 'diag'" :href="academic?.role === 'profesor'
+                        ? teachers.grades.pdf.url({
+                            courseSubject: props.courseSubject.id,
+                        })
+                        : grades.pdf.url({
+                            current_team: props.currentTeam?.slug ?? '',
+                            courseSubject: props.courseSubject.id,
+                        })
+                    " target="_blank"
+                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
                             d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
-                            clip-rule="evenodd"
-                        />
+                            clip-rule="evenodd" />
                     </svg>
                     Reporte PDF
                 </a>
 
                 <span
-                    class="rounded-2xl bg-blue-100 px-4 py-2 text-xs font-black tracking-tighter text-blue-600 uppercase dark:bg-blue-900/30 dark:text-blue-400"
-                    >Periodo Lectivo 2026</span
-                >
+                    class="rounded-2xl bg-blue-100 px-4 py-2 text-xs font-black tracking-tighter text-blue-600 uppercase dark:bg-blue-900/30 dark:text-blue-400">Periodo
+                    Lectivo 2026</span>
+
             </div>
         </div>
 
         <form @submit.prevent="submit" class="flex min-h-0 min-w-0 flex-1 flex-col">
             <div
-                class="flex min-h-0 min-w-0 flex-1 flex-col rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
-            >
+                class="flex min-h-0 min-w-0 flex-1 flex-col rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
                 <div class="flex-shrink-0 border-b border-zinc-200 dark:border-zinc-800">
                     <nav class="flex">
-                        <button
-                            type="button"
-                            @click="activeTab = 'diag'"
-                            :class="[
-                                'px-6 py-4 text-sm font-black transition-colors',
-                                activeTab === 'diag'
-                                    ? 'bg-amber-500 text-white'
-                                    : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
-                            ]"
-                        >
+                        <button type="button" @click="activeTab = 'diag'" :class="[
+                            'px-6 py-4 text-sm font-black transition-colors',
+                            activeTab === 'diag'
+                                ? 'bg-amber-500 text-white'
+                                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
+                        ]">
                             Diagnóstico
                         </button>
-                        <button
-                            type="button"
-                            @click="activeTab = 't1'"
-                            :class="[
-                                'px-6 py-4 text-sm font-black transition-colors',
-                                activeTab === 't1'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
-                            ]"
-                        >
+                        <button type="button" @click="activeTab = 't1'" :class="[
+                            'px-6 py-4 text-sm font-black transition-colors',
+                            activeTab === 't1'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
+                        ]">
                             1er Trimestre
                         </button>
-                        <button
-                            type="button"
-                            @click="activeTab = 't2'"
-                            :class="[
-                                'px-6 py-4 text-sm font-black transition-colors',
-                                activeTab === 't2'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
-                            ]"
-                        >
+                        <button type="button" @click="activeTab = 't2'" :class="[
+                            'px-6 py-4 text-sm font-black transition-colors',
+                            activeTab === 't2'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
+                        ]">
                             2do Trimestre
                         </button>
-                        <button
-                            type="button"
-                            @click="activeTab = 't3'"
-                            :class="[
-                                'px-6 py-4 text-sm font-black transition-colors',
-                                activeTab === 't3'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
-                            ]"
-                        >
+                        <button type="button" @click="activeTab = 't3'" :class="[
+                            'px-6 py-4 text-sm font-black transition-colors',
+                            activeTab === 't3'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
+                        ]">
                             3er Trimestre
                         </button>
                     </nav>
                 </div>
 
-                <div v-if="activeTab === 'diag'" class="flex min-h-0 min-w-0 flex-1 flex-col p-4 md:p-6">
+                <div v-if="activeTab === 'diag'" class="flex min-h-0 min-w-0 flex-1 flex-col p-4 md:p-1">
                     <div class="custom-scrollbar relative flex-1 min-w-0 overflow-auto pb-4">
+                        <!-- Cuadros de dialogo  -->
+                        <div class="mt-4 grid flex-shrink-0 grid-cols-3 gap-2 sm:mt-6 sm:gap-4">
+                            
+                            <div class="rounded-xl bg-emerald-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-emerald-900/30">
+                                <p
+                                    class="text-[8px] font-black text-emerald-600 uppercase sm:text-xs dark:text-emerald-400">
+                                    Logrado
+                                </p>
+                                <p class="text-lg font-black text-emerald-700 sm:text-2xl dark:text-emerald-300">
+                                    >69%
+                                </p>
+                                <p
+                                    class="hidden text-[10px] text-emerald-600 sm:block sm:text-xs dark:text-emerald-400">
+                                    Dominio suficiente
+                                </p>
+                            </div>
+                            <div class="rounded-xl bg-amber-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-amber-900/30">
+                                <p
+                                    class="text-[8px] font-black text-amber-600 uppercase sm:text-xs dark:text-amber-400">
+                                    En Proceso
+                                </p>
+                                <p class="text-lg font-black text-amber-700 sm:text-2xl dark:text-amber-300">
+                                    39-69%
+                                </p>
+                                <p class="hidden text-[10px] text-amber-600 sm:block sm:text-xs dark:text-amber-400">
+                                    Requiere refuerzo
+                                </p>
+                            </div>
+                            <div class="rounded-xl bg-red-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-red-900/30">
+                                <p class="text-[8px] font-black text-red-600 uppercase sm:text-xs dark:text-red-400">
+                                    Iniciado
+                                </p>
+                                <p class="text-lg font-black text-red-700 sm:text-2xl dark:text-red-300">
+                                    <39% </p>
+                                        <p
+                                            class="hidden text-[10px] text-red-600 sm:block sm:text-xs dark:text-red-400">
+                                            Necesita apoyo
+                                        </p>
+                            </div>
+                        </div>
+                        <!-- fin cuadros de dialogo  -->
                         <table class="w-full min-w-[1000px] text-left">
                             <thead class="sticky top-0 z-40 bg-zinc-50 dark:bg-zinc-900">
-                                <tr
-                                    class="border-b-2 border-zinc-300 dark:border-zinc-600"
-                                >
+                                <tr class="border-b-2 border-zinc-300 dark:border-zinc-600">
                                     <th
-                                        class="sticky left-0 z-50 w-32 border-r border-zinc-200 bg-zinc-50 px-2 py-4 text-[10px] font-black text-zinc-600 sm:w-64 sm:px-6 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                                    >
+                                        class="sticky left-0 z-50 w-32 border-r border-zinc-200 bg-zinc-50 px-2 py-4 text-[10px] font-black text-zinc-600 sm:w-64 sm:px-6 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                                         Estudiante
                                     </th>
-                                    <th
-                                        v-for="i in 10"
-                                        :key="'th-' + i"
-                                        class="min-w-[3rem] px-2 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
-                                    >
-                                        <input
-                                            v-model="form.dcds[i - 1].name"
+                                    <th v-for="i in 10" :key="'th-' + i"
+                                        class="min-w-[3rem] px-2 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300">
+                                        <input v-model="form.dcds[i - 1].name"
                                             class="w-full rounded border-0 bg-transparent px-1 text-center text-xs font-bold focus:ring-1 focus:ring-amber-500"
-                                            :placeholder="`DCD ${i}`"
-                                        />
+                                            :placeholder="`DCD ${i}`" />
                                     </th>
                                     <th
-                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
-                                    >
+                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300">
                                         Total
                                     </th>
                                     <th
-                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
-                                    >
+                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300">
                                         %
                                     </th>
                                     <th
-                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300"
-                                    >
+                                        class="px-4 py-1 text-center text-xs font-black text-zinc-600 dark:text-zinc-300">
                                         Estado
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody
-                                class="divide-y divide-zinc-100 dark:divide-zinc-800"
-                            >
-                                <tr
-                                    v-for="(student, index) in students"
-                                    :key="student.id"
-                                    class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
-                                >
+                            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                <tr v-for="(student, index) in students" :key="student.id"
+                                    class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
                                     <td
-                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-2 py-2 sm:px-4 dark:border-zinc-800 dark:bg-zinc-900"
-                                    >
+                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-2 py-2 sm:px-4 dark:border-zinc-800 dark:bg-zinc-900">
                                         <div class="flex items-center gap-2 sm:gap-3">
                                             <div
-                                                class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-500 sm:h-8 sm:w-8 sm:rounded-lg sm:text-xs dark:bg-zinc-800"
-                                            >
+                                                class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-500 sm:h-8 sm:w-8 sm:rounded-lg sm:text-xs dark:bg-zinc-800">
                                                 {{ index + 1 }}
                                             </div>
                                             <div class="min-w-0 flex-1">
                                                 <p
-                                                    class="truncate text-[9px] font-bold text-zinc-800 sm:text-xs dark:text-zinc-200"
-                                                    >{{ student.name }}</p
-                                                >
+                                                    class="truncate text-[9px] font-bold text-zinc-800 sm:text-xs dark:text-zinc-200">
+                                                    {{ student.name }}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td
-                                        v-for="i in 10"
-                                        :key="'cb-' + i"
-                                        class="px-2 py-2 text-center"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            :checked="
-                                                form.student_dcds[student.id]?.[
-                                                    i
-                                                ]
-                                            "
-                                            @change="
+                                    <td v-for="i in 10" :key="'cb-' + i" class="px-2 py-2 text-center">
+                                        <input type="checkbox" :checked="form.student_dcds[student.id]?.[
+                                            i
+                                            ]
+                                            " @change="
                                                 form.student_dcds[student.id][
-                                                    i
+                                                i
                                                 ] = (
                                                     $event.target as HTMLInputElement
                                                 ).checked
-                                            "
-                                            class="h-6 w-6 cursor-pointer rounded border-zinc-300 text-amber-500 focus:ring-amber-500"
-                                        />
+                                                "
+                                            class="h-6 w-6 cursor-pointer rounded border-zinc-300 text-amber-500 focus:ring-amber-500" />
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="font-black text-zinc-700 dark:text-zinc-300"
-                                        >
+                                        <span class="font-black text-zinc-700 dark:text-zinc-300">
                                             {{
                                                 Object.values(
                                                     form.student_dcds[
-                                                        student.id
+                                                    student.id
                                                     ] || {},
                                                 ).filter(Boolean).length
                                             }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="font-black text-zinc-700 dark:text-zinc-300"
-                                        >
+                                        <span class="font-black text-zinc-700 dark:text-zinc-300">
                                             {{
                                                 getPercentage(
                                                     form.student_dcds[
-                                                        student.id
+                                                    student.id
                                                     ] || {},
                                                 )
                                             }}%
                                         </span>
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        <span
-                                            :class="[
-                                                'inline-block rounded-full px-3 py-1 text-xs font-black',
-                                                getStatus(
-                                                    form.student_dcds[
-                                                        student.id
-                                                    ] || {},
-                                                ).class,
-                                            ]"
-                                        >
+                                        <span :class="[
+                                            'inline-block rounded-full px-3 py-1 text-xs font-black',
+                                            getStatus(
+                                                form.student_dcds[
+                                                student.id
+                                                ] || {},
+                                            ).class,
+                                        ]">
                                             {{
                                                 getStatus(
                                                     form.student_dcds[
-                                                        student.id
+                                                    student.id
                                                     ] || {},
                                                 ).text
                                             }}
@@ -610,43 +599,27 @@ const overallStatus = computed(() => {
                             </tbody>
                             <tfoot>
                                 <tr
-                                    class="border-t-2 border-zinc-300 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800/50"
-                                >
+                                    class="border-t-2 border-zinc-300 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800/50">
                                     <td class="py-1 pr-4">
-                                        <span
-                                            class="font-black text-zinc-700 dark:text-zinc-300"
-                                            >TOTAL</span
-                                        >
+                                        <span class="font-black text-zinc-700 dark:text-zinc-300">TOTAL</span>
                                     </td>
-                                    <td
-                                        v-for="i in 10"
-                                        :key="'total-' + i"
-                                        class="px-2 py-1 text-center"
-                                    >
-                                        <span
-                                            class="font-black text-zinc-700 dark:text-zinc-300"
-                                            >{{ columnTotals[i] }}</span
-                                        >
+                                    <td v-for="i in 10" :key="'total-' + i" class="px-2 py-1 text-center">
+                                        <span class="font-black text-zinc-700 dark:text-zinc-300">{{ columnTotals[i]
+                                            }}</span>
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="font-black text-zinc-700 dark:text-zinc-300"
-                                            >{{ totalSelected }}</span
-                                        >
+                                        <span class="font-black text-zinc-700 dark:text-zinc-300">{{ totalSelected
+                                            }}</span>
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        <span
-                                            class="font-black text-zinc-700 dark:text-zinc-300"
-                                            >{{ overallPercentage }}%</span
-                                        >
+                                        <span class="font-black text-zinc-700 dark:text-zinc-300">{{ overallPercentage
+                                            }}%</span>
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        <span
-                                            :class="[
-                                                'inline-block rounded-full px-3 py-1 text-xs font-black',
-                                                overallStatus.class,
-                                            ]"
-                                        >
+                                        <span :class="[
+                                            'inline-block rounded-full px-3 py-1 text-xs font-black',
+                                            overallStatus.class,
+                                        ]">
                                             {{ overallStatus.text }}
                                         </span>
                                     </td>
@@ -655,207 +628,118 @@ const overallStatus = computed(() => {
                         </table>
                     </div>
 
-                    <div class="mt-4 grid flex-shrink-0 grid-cols-3 gap-2 sm:mt-6 sm:gap-4">
-                        <div
-                            class="rounded-xl bg-emerald-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-emerald-900/30"
-                        >
-                            <p
-                                class="text-[8px] font-black text-emerald-600 uppercase sm:text-xs dark:text-emerald-400"
-                            >
-                                Logrado
-                            </p>
-                            <p
-                                class="text-lg font-black text-emerald-700 sm:text-2xl dark:text-emerald-300"
-                            >
-                                >69%
-                            </p>
-                            <p
-                                class="hidden text-[10px] text-emerald-600 sm:block sm:text-xs dark:text-emerald-400"
-                            >
-                                Dominio suficiente
-                            </p>
-                        </div>
-                        <div
-                            class="rounded-xl bg-amber-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-amber-900/30"
-                        >
-                            <p
-                                class="text-[8px] font-black text-amber-600 uppercase sm:text-xs dark:text-amber-400"
-                            >
-                                En Proceso
-                            </p>
-                            <p
-                                class="text-lg font-black text-amber-700 sm:text-2xl dark:text-amber-300"
-                            >
-                                39-69%
-                            </p>
-                            <p
-                                class="hidden text-[10px] text-amber-600 sm:block sm:text-xs dark:text-amber-400"
-                            >
-                                Requiere refuerzo
-                            </p>
-                        </div>
-                        <div
-                            class="rounded-xl bg-red-100 p-2 sm:rounded-2xl sm:p-4 dark:bg-red-900/30"
-                        >
-                            <p
-                                class="text-[8px] font-black text-red-600 uppercase sm:text-xs dark:text-red-400"
-                            >
-                                Iniciado
-                            </p>
-                            <p
-                                class="text-lg font-black text-red-700 sm:text-2xl dark:text-red-300"
-                            >
-                                <39%
-                            </p>
-                            <p class="hidden text-[10px] text-red-600 sm:block sm:text-xs dark:text-red-400">
-                                Necesita apoyo
-                            </p>
-                        </div>
-                    </div>
+
                 </div>
 
                 <div v-else class="flex min-h-0 min-w-0 flex-1 flex-col">
-                    <div class="flex-shrink-0 border-b border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
+                    <div
+                        class="flex-shrink-0 border-b border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
                         <div class="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                @click="activeSubTab = 'ind'"
-                                :class="[
-                                    'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
-                                    activeSubTab === 'ind'
-                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500'
-                                        : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
-                                ]"
-                            >
+                            <button type="button" @click="activeSubTab = 'ind'" :class="[
+                                'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                activeSubTab === 'ind'
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500'
+                                    : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                            ]">
                                 Insumos Individuales
                             </button>
-                            <button
-                                type="button"
-                                @click="activeSubTab = 'grp'"
-                                :class="[
-                                    'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
-                                    activeSubTab === 'grp'
-                                        ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20 ring-1 ring-purple-500'
-                                        : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
-                                ]"
-                            >
+                            <button type="button" @click="activeSubTab = 'grp'" :class="[
+                                'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                activeSubTab === 'grp'
+                                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20 ring-1 ring-purple-500'
+                                    : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                            ]">
                                 Insumos Grupales
                             </button>
-                            <button
-                                type="button"
-                                @click="activeSubTab = 'trimestral'"
-                                :class="[
-                                    'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
-                                    activeSubTab === 'trimestral'
-                                        ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-500'
-                                        : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
-                                ]"
-                            >
+                            <button type="button" @click="activeSubTab = 'trimestral'" :class="[
+                                'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                activeSubTab === 'trimestral'
+                                    ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-500'
+                                    : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
+                            ]">
                                 Resumen Trimestral
                             </button>
                         </div>
                     </div>
 
                     <div class="custom-scrollbar relative flex-1 min-w-0 overflow-auto rounded-b-3xl pb-4">
-                        <table
-                            class="w-full border-collapse text-left"
-                            :class="{ 'min-w-[800px]': activeSubTab !== 'trimestral', 'min-w-[600px]': activeSubTab === 'trimestral' }"
-                        >
-                            <thead
-                                class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50"
-                            >
+                        <table class="w-full border-collapse text-left"
+                            :class="{ 'min-w-[800px]': activeSubTab !== 'trimestral', 'min-w-[600px]': activeSubTab === 'trimestral' }">
+                            <thead class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800/50">
                                 <!-- Encabezados Generales -->
                                 <tr class="sticky top-0 z-40 bg-zinc-50 shadow-sm dark:bg-zinc-800">
                                     <th
-                                        class="sticky left-0 top-0 z-50 w-32 bg-zinc-50 px-2 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase shadow-sm sm:w-64 sm:px-6 dark:bg-zinc-800"
-                                    >
+                                        class="sticky left-0 top-0 z-50 w-32 bg-zinc-50 px-2 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase shadow-sm sm:w-64 sm:px-6 dark:bg-zinc-800">
                                         Estudiante
                                     </th>
 
                                     <template v-if="activeSubTab === 'ind'">
-                                        <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
-                                            colspan="6"
-                                        >
+                                        <th class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
+                                            colspan="6">
                                             Insumos Individuales
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-blue-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30">
                                             Prom. Indiv.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10">
                                             Ref. Indiv.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10">
                                             Nuevo P. Indiv.
                                         </th>
                                     </template>
 
                                     <template v-if="activeSubTab === 'grp'">
-                                        <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
-                                            colspan="6"
-                                        >
+                                        <th class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
+                                            colspan="6">
                                             Insumos Grupales
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-purple-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30">
                                             Prom. Grup.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10">
                                             Ref. Grup.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10">
                                             Nuevo P. Grup.
                                         </th>
                                     </template>
 
                                     <template v-if="activeSubTab === 'trimestral'">
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10">
                                             P. Indiv.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10">
                                             P. Grup.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-amber-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30">
                                             Prom. Parcial (70%)
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-indigo-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-indigo-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10">
                                             Proyecto (10%)
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-rose-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-rose-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10">
                                             Evaluación (20%)
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30"
-                                        >
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30">
                                             Prom. Final
                                         </th>
                                     </template>
 
                                     <th
-                                        class="sticky top-0 border-l border-zinc-200 px-6 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800"
-                                    >
+                                        class="sticky top-0 border-l border-zinc-200 px-6 py-4 text-[10px] font-black tracking-widest text-zinc-400 uppercase dark:border-zinc-800">
                                         Obs.
                                     </th>
                                 </tr>
@@ -863,213 +747,187 @@ const overallStatus = computed(() => {
                                 <!-- Sub-encabezados (Inputs de Nombres) -->
                                 <tr class="sticky top-[46px] z-40 h-20 bg-zinc-50 shadow-sm dark:bg-zinc-800">
                                     <th
-                                        class="sticky left-0 z-50 border-b border-zinc-200 bg-zinc-50 px-2 py-2 shadow-sm sm:px-6 dark:border-zinc-700 dark:bg-zinc-800"
-                                    ></th>
+                                        class="sticky left-0 z-50 border-b border-zinc-200 bg-zinc-50 px-2 py-2 shadow-sm sm:px-6 dark:border-zinc-700 dark:bg-zinc-800">
+                                    </th>
 
                                     <template v-if="activeSubTab === 'ind'">
-                                        <th
-                                            v-for="i in 6"
-                                            :key="'ind-' + i"
-                                            class="sticky top-[46px] min-w-[3rem] border-b border-zinc-200 px-1 py-1 text-center sm:min-w-[4rem] sm:py-2 dark:border-zinc-700"
-                                        >
+                                        <th v-for="i in 6" :key="'ind-' + i"
+                                            class="sticky top-[46px] min-w-[3rem] border-b border-zinc-200 px-1 py-1 text-center sm:min-w-[4rem] sm:py-2 dark:border-zinc-700">
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'][`ind_${i}`]"
-                                                :class="nameInputClass"
-                                                :placeholder="`Insumo ${i}`"
-                                            />
+                                                :class="nameInputClass" :placeholder="`Insumo ${i}`" />
                                         </th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].ref_1"
-                                                :class="nameInputClass"
-                                                placeholder="Ref. Indiv."
-                                            />
+                                                :class="nameInputClass" placeholder="Ref. Indiv." />
                                         </th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
                                     </template>
 
                                     <template v-if="activeSubTab === 'grp'">
-                                        <th
-                                            v-for="i in 6"
-                                            :key="'grp-' + i"
-                                            class="min-w-[4rem] px-1 py-2 text-center"
-                                        >
+                                        <th v-for="i in 6" :key="'grp-' + i" class="min-w-[4rem] px-1 py-2 text-center">
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'][`grp_${i}`]"
-                                                :class="nameInputClass"
-                                                :placeholder="`Grupo ${i}`"
-                                            />
+                                                :class="nameInputClass" :placeholder="`Grupo ${i}`" />
                                         </th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].ref_2"
-                                                :class="nameInputClass"
-                                                placeholder="Ref. Grup."
-                                            />
+                                                :class="nameInputClass" placeholder="Ref. Grup." />
                                         </th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
                                     </template>
 
                                     <template v-if="activeSubTab === 'trimestral'">
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].proj"
-                                                :class="nameInputClass"
-                                                placeholder="Proyecto"
-                                            />
+                                                :class="nameInputClass" placeholder="Proyecto" />
                                         </th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-1 py-2 text-center dark:border-zinc-800">
                                             <input
                                                 v-model="form.insumo_names[activeTab === 't2' ? 't2' : activeTab === 't3' ? 't3' : 't1'].eval"
-                                                :class="nameInputClass"
-                                                placeholder="Evaluación"
-                                            />
+                                                :class="nameInputClass" placeholder="Evaluación" />
                                         </th>
-                                        <th class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800"></th>
+                                        <th
+                                            class="min-w-[4rem] border-l border-zinc-200 px-2 py-2 text-center dark:border-zinc-800">
+                                        </th>
                                     </template>
 
                                     <th class="border-l border-zinc-200 px-4 py-2 dark:border-zinc-800"></th>
                                 </tr>
                             </thead>
-                            <tbody
-                                class="divide-y divide-zinc-100 dark:divide-zinc-800"
-                            >
-                                <tr
-                                    v-for="(student, index) in form.grades"
-                                    :key="student.id"
-                                    class="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20"
-                                >
+                            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                <tr v-for="(student, index) in form.grades" :key="student.id"
+                                    class="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
                                     <td
-                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-2 py-1 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900"
-                                    >
+                                        class="sticky left-0 z-20 border-r border-zinc-100 bg-white px-2 py-1 sm:px-6 dark:border-zinc-800 dark:bg-zinc-900">
                                         <div class="flex items-center gap-2 sm:gap-3">
                                             <div
-                                                class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-500 sm:h-7 sm:w-7 sm:rounded-lg dark:bg-zinc-800"
-                                            >
+                                                class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-[10px] font-bold text-zinc-500 sm:h-7 sm:w-7 sm:rounded-lg dark:bg-zinc-800">
                                                 {{ index + 1 }}
                                             </div>
                                             <div class="min-w-0 flex-1">
                                                 <p
-                                                    class="truncate text-[9px] font-bold text-zinc-800 sm:text-xs dark:text-zinc-200"
-                                                    >{{ student.name }}</p
-                                                >
+                                                    class="truncate text-[9px] font-bold text-zinc-800 sm:text-xs dark:text-zinc-200">
+                                                    {{ student.name }}</p>
                                             </div>
                                         </div>
                                     </td>
 
                                     <template v-if="activeSubTab === 'ind'">
                                         <td v-for="i in 6" :key="'ind-' + i" class="px-1 py-1">
-                                            <input
-                                                v-model="(student as any)[activeTab + '_ind_' + i]"
-                                                type="text"
-                                                :class="inputClass"
-                                                @input="(student as any)[activeTab + '_ind_' + i] = parseGrade(($event.target as HTMLInputElement).value)"
-                                            />
+                                            <input v-model="(student as any)[activeTab + '_ind_' + i]" type="number"
+                                                step="0.01" min="0" max="10" :class="inputClass"
+                                                @input="(student as any)[activeTab + '_ind_' + i] = parseGrade(($event.target as HTMLInputElement).value)" />
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400 bg-blue-50/20 dark:bg-blue-900/5">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400 bg-blue-50/20 dark:bg-blue-900/5">
                                             {{ calcPromedioBase(student, activeTab, 'ind')?.toFixed(2) || '-' }}
                                         </td>
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
-                                            <input
-                                                v-model="(student as any)[activeTab + '_ref_1']"
-                                                type="text"
-                                                :class="inputClass"
-                                                @input="(student as any)[activeTab + '_ref_1'] = parseGrade(($event.target as HTMLInputElement).value)"
-                                            />
+                                            <input v-model="(student as any)[activeTab + '_ref_1']" type="number"
+                                                step="0.01" min="0" max="10" :class="inputClass"
+                                                @input="(student as any)[activeTab + '_ref_1'] = parseGrade(($event.target as HTMLInputElement).value)" />
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
                                             {{ calcNuevoPromedio(student, activeTab, 'ind')?.toFixed(2) || '-' }}
                                         </td>
                                     </template>
 
                                     <template v-if="activeSubTab === 'grp'">
                                         <td v-for="i in 6" :key="'grp-' + i" class="px-1 py-1">
-                                            <input
-                                                v-model="(student as any)[activeTab + '_grp_' + i]"
-                                                type="text"
-                                                :class="inputClass"
-                                                @input="(student as any)[activeTab + '_grp_' + i] = parseGrade(($event.target as HTMLInputElement).value)"
-                                            />
+                                            <input v-model="(student as any)[activeTab + '_grp_' + i]" type="number"
+                                                step="0.01" min="0" max="10" :class="inputClass"
+                                                @input="(student as any)[activeTab + '_grp_' + i] = parseGrade(($event.target as HTMLInputElement).value)" />
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400 bg-purple-50/20 dark:bg-purple-900/5">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400 bg-purple-50/20 dark:bg-purple-900/5">
                                             {{ calcPromedioBase(student, activeTab, 'grp')?.toFixed(2) || '-' }}
                                         </td>
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
-                                            <input
-                                                v-model="(student as any)[activeTab + '_ref_2']"
-                                                type="text"
-                                                :class="inputClass"
-                                                @input="(student as any)[activeTab + '_ref_2'] = parseGrade(($event.target as HTMLInputElement).value)"
-                                            />
+                                            <input v-model="(student as any)[activeTab + '_ref_2']" type="number"
+                                                step="0.01" min="0" max="10" :class="inputClass"
+                                                @input="(student as any)[activeTab + '_ref_2'] = parseGrade(($event.target as HTMLInputElement).value)" />
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">
                                             {{ calcNuevoPromedio(student, activeTab, 'grp')?.toFixed(2) || '-' }}
                                         </td>
                                     </template>
 
                                     <template v-if="activeSubTab === 'trimestral'">
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-blue-600 dark:border-zinc-800 dark:text-blue-400">
                                             {{ calcNuevoPromedio(student, activeTab, 'ind')?.toFixed(2) || '-' }}
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-xs font-bold text-purple-600 dark:border-zinc-800 dark:text-purple-400">
                                             {{ calcNuevoPromedio(student, activeTab, 'grp')?.toFixed(2) || '-' }}
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-amber-600 dark:border-zinc-800 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-900/10">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-amber-600 dark:border-zinc-800 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-900/10">
                                             {{ calcPromedioParcial(student, activeTab)?.toFixed(2) || '-' }}
                                         </td>
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
-                                            <input
-                                                v-model="(student as any)[activeTab + '_proj']"
-                                                type="text"
-                                                :class="inputClass"
-                                                @input="(student as any)[activeTab + '_proj'] = parseGrade(($event.target as HTMLInputElement).value)"
-                                            />
+                                            <input v-model="(student as any)[activeTab + '_proj']" type="number"
+                                                step="0.01" min="0" max="10" :class="inputClass"
+                                                @input="(student as any)[activeTab + '_proj'] = parseGrade(($event.target as HTMLInputElement).value)" />
                                         </td>
                                         <td class="border-l border-zinc-200 px-1 py-1 dark:border-zinc-800">
-                                            <input
-                                                v-model="(student as any)[activeTab + '_eval']"
-                                                type="text"
-                                                :class="inputClass"
-                                                @input="(student as any)[activeTab + '_eval'] = parseGrade(($event.target as HTMLInputElement).value)"
-                                            />
+                                            <input v-model="(student as any)[activeTab + '_eval']" type="number"
+                                                step="0.01" min="0" max="10" :class="inputClass"
+                                                @input="(student as any)[activeTab + '_eval'] = parseGrade(($event.target as HTMLInputElement).value)" />
                                         </td>
-                                        <td class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-100/30 dark:bg-emerald-900/30">
+                                        <td
+                                            class="border-l border-zinc-200 px-2 py-1 text-center text-sm font-black text-emerald-600 dark:border-zinc-800 dark:text-emerald-400 bg-emerald-100/30 dark:bg-emerald-900/30">
                                             {{ calcPromedioFinal(student, activeTab)?.toFixed(2) || '-' }}
                                         </td>
                                     </template>
 
-                                    <td
-                                        class="border-l border-zinc-200 px-4 py-1 dark:border-zinc-800"
-                                    >
-                                        <input
-                                            v-model="student.observations"
-                                            type="text"
-                                            placeholder="..."
-                                            class="w-full rounded-xl border-zinc-200 bg-zinc-50 text-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
-                                        />
+                                    <td class="border-l border-zinc-200 px-4 py-1 dark:border-zinc-800">
+                                        <input v-model="student.observations" type="text" placeholder="..."
+                                            class="w-full rounded-xl border-zinc-200 bg-zinc-50 text-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800" />
                                     </td>
                                 </tr>
                                 <tr v-if="form.grades.length === 0">
-                                    <td
-                                        colspan="10"
-                                        class="px-6 py-12 text-center text-zinc-500 italic"
-                                    >
+                                    <td colspan="10" class="px-6 py-12 text-center text-zinc-500 italic">
                                         No hay estudiantes matriculados en este
                                         curso.
                                     </td>
                                 </tr>
                             </tbody>
-                    </table>
-                </div>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div
+            <!-- <div
                 class="relative flex flex-col items-center justify-between gap-4 overflow-hidden rounded-[2.5rem] bg-zinc-900 p-8 shadow-2xl md:flex-row dark:bg-zinc-50"
             >
                 <div
@@ -1109,9 +967,9 @@ const overallStatus = computed(() => {
                         Deshacer
                     </button>
                 </div>
-            </div>
+            </div> -->
 
-            <Transition
+            <!-- <Transition
                 enter-active-class="transition duration-300 ease-out"
                 enter-from-class="transform scale-95 opacity-0"
                 enter-to-class="transform scale-100 opacity-100"
@@ -1137,7 +995,7 @@ const overallStatus = computed(() => {
                     </svg>
                     ¡Calificaciones publicadas exitosamente!
                 </div>
-            </Transition>
+            </Transition> -->
         </form>
     </div>
 </template>
@@ -1147,15 +1005,18 @@ const overallStatus = computed(() => {
     height: 10px;
     display: block !important;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 5px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #bbb;
     border-radius: 5px;
     border: 2px solid #f1f1f1;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #999;
 }
