@@ -167,7 +167,7 @@ defineOptions({
 });
 
 const inputClass =
-    'w-12 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-0.5 py-1.5 text-xs shadow-sm';
+    'w-14 sm:w-16 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 font-black text-center transition px-1 py-1.5 text-xs shadow-sm';
 const nameInputClass =
     'w-full text-[9px] font-bold text-zinc-600 dark:text-zinc-300 bg-transparent border-0 p-0 text-center focus:ring-1 focus:ring-blue-500 rounded-lg transition truncate uppercase [writing-mode:vertical-rl] rotate-180';
 
@@ -353,8 +353,8 @@ const overallStatus = computed(() => {
 
     <Head :title="`Registrar Notas - ${courseSubject.subject.name}`" />
 
-    <div class="mx-auto flex h-[calc(100vh-4rem)] w-full max-w-[1800px] flex-col p-4 md:p-6">
-        <div class="mb-6 flex flex-shrink-0 items-center justify-between">
+    <div class="mx-auto flex h-[calc(100vh-4rem)] w-full max-w-[1800px] flex-col p-1 sm:p-2 md:p-6">
+        <div class="mb-2 md:mb-6 flex flex-shrink-0 items-center justify-between landscape:hidden md:landscape:flex">
             <div>
                 <h1 class="text-3xl font-black text-zinc-900 dark:text-zinc-50">
                     {{ courseSubject.subject.name }}
@@ -421,7 +421,7 @@ const overallStatus = computed(() => {
                 <div class="flex-shrink-0 border-b border-zinc-200 dark:border-zinc-800">
                     <nav class="flex">
                         <button type="button" @click="activeTab = 'diag'" :class="[
-                            'px-6 py-4 text-sm font-black transition-colors',
+                            'px-3 py-2 text-xs md:px-6 md:py-4 md:text-sm font-black transition-colors',
                             activeTab === 'diag'
                                 ? 'bg-amber-500 text-white'
                                 : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
@@ -429,7 +429,7 @@ const overallStatus = computed(() => {
                             Diagnóstico
                         </button>
                         <button type="button" @click="activeTab = 't1'" :class="[
-                            'px-6 py-4 text-sm font-black transition-colors',
+                            'px-3 py-2 text-xs md:px-6 md:py-4 md:text-sm font-black transition-colors',
                             activeTab === 't1'
                                 ? 'bg-blue-600 text-white'
                                 : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
@@ -437,7 +437,7 @@ const overallStatus = computed(() => {
                             1er Trimestre
                         </button>
                         <button type="button" @click="activeTab = 't2'" :class="[
-                            'px-6 py-4 text-sm font-black transition-colors',
+                            'px-3 py-2 text-xs md:px-6 md:py-4 md:text-sm font-black transition-colors',
                             activeTab === 't2'
                                 ? 'bg-blue-600 text-white'
                                 : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
@@ -445,7 +445,7 @@ const overallStatus = computed(() => {
                             2do Trimestre
                         </button>
                         <button type="button" @click="activeTab = 't3'" :class="[
-                            'px-6 py-4 text-sm font-black transition-colors',
+                            'px-3 py-2 text-xs md:px-6 md:py-4 md:text-sm font-black transition-colors',
                             activeTab === 't3'
                                 ? 'bg-blue-600 text-white'
                                 : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800',
@@ -633,10 +633,10 @@ const overallStatus = computed(() => {
 
                 <div v-else class="flex min-h-0 min-w-0 flex-1 flex-col">
                     <div
-                        class="flex-shrink-0 border-b border-zinc-200 bg-zinc-50/50 p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
+                        class="flex-shrink-0 border-b border-zinc-200 bg-zinc-50/50 p-1.5 md:p-3 dark:border-zinc-800 dark:bg-zinc-800/20">
                         <div class="flex flex-wrap gap-2">
                             <button type="button" @click="activeSubTab = 'ind'" :class="[
-                                'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                'rounded-xl px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-black transition-all duration-300',
                                 activeSubTab === 'ind'
                                     ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-1 ring-blue-500'
                                     : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
@@ -644,7 +644,7 @@ const overallStatus = computed(() => {
                                 Insumos Individuales
                             </button>
                             <button type="button" @click="activeSubTab = 'grp'" :class="[
-                                'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                'rounded-xl px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-black transition-all duration-300',
                                 activeSubTab === 'grp'
                                     ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20 ring-1 ring-purple-500'
                                     : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
@@ -652,7 +652,7 @@ const overallStatus = computed(() => {
                                 Insumos Grupales
                             </button>
                             <button type="button" @click="activeSubTab = 'trimestral'" :class="[
-                                'rounded-xl px-4 py-2 text-xs font-black transition-all duration-300',
+                                'rounded-xl px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-black transition-all duration-300',
                                 activeSubTab === 'trimestral'
                                     ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-500'
                                     : 'bg-white text-zinc-500 hover:bg-zinc-50 border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-700',
@@ -674,66 +674,66 @@ const overallStatus = computed(() => {
                                     </th>
 
                                     <template v-if="activeSubTab === 'ind'">
-                                        <th class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
+                                        <th class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-blue-400 uppercase dark:border-zinc-800 dark:bg-blue-900/10"
                                             colspan="6">
                                             Insumos Individuales
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-blue-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30">
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-100/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/30">
                                             Prom. Indiv.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10">
                                             Ref. Indiv.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10">
                                             Nuevo P. Indiv.
                                         </th>
                                     </template>
 
                                     <template v-if="activeSubTab === 'grp'">
-                                        <th class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
+                                        <th class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-purple-400 uppercase dark:border-zinc-800 dark:bg-purple-900/10"
                                             colspan="6">
                                             Insumos Grupales
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-purple-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30">
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-100/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/30">
                                             Prom. Grup.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-amber-500 uppercase dark:border-zinc-800 dark:bg-amber-900/10">
                                             Ref. Grup.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-emerald-500 uppercase dark:border-zinc-800 dark:bg-emerald-900/10">
                                             Nuevo P. Grup.
                                         </th>
                                     </template>
 
                                     <template v-if="activeSubTab === 'trimestral'">
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-blue-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-blue-500 uppercase dark:border-zinc-800 dark:bg-blue-900/10">
                                             P. Indiv.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-purple-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-purple-500 uppercase dark:border-zinc-800 dark:bg-purple-900/10">
                                             P. Grup.
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-amber-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30">
+                                            class="sticky top-0 border-l border-zinc-200 bg-amber-100/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-amber-600 uppercase dark:border-zinc-800 dark:bg-amber-900/30">
                                             Prom. Parcial (70%)
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-indigo-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-indigo-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-indigo-500 uppercase dark:border-zinc-800 dark:bg-indigo-900/10">
                                             Proyecto (10%)
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-rose-50/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10">
+                                            class="sticky top-0 border-l border-zinc-200 bg-rose-50/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-rose-500 uppercase dark:border-zinc-800 dark:bg-rose-900/10">
                                             Evaluación (20%)
                                         </th>
                                         <th
-                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-100/50 px-3 py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30">
+                                            class="sticky top-0 border-l border-zinc-200 bg-emerald-100/50 px-2 py-2 md:px-3 md:py-4 text-center text-[10px] font-black tracking-widest text-emerald-600 uppercase dark:border-zinc-800 dark:bg-emerald-900/30">
                                             Prom. Final
                                         </th>
                                     </template>
@@ -745,7 +745,7 @@ const overallStatus = computed(() => {
                                 </tr>
 
                                 <!-- Sub-encabezados (Inputs de Nombres) -->
-                                <tr class="sticky top-[46px] z-40 h-20 bg-zinc-50 shadow-sm dark:bg-zinc-800">
+                                <tr class="sticky top-[34px] md:top-[46px] z-40 h-16 md:h-20 bg-zinc-50 shadow-sm dark:bg-zinc-800">
                                     <th
                                         class="sticky left-0 z-50 border-b border-zinc-200 bg-zinc-50 px-2 py-2 shadow-sm sm:px-6 dark:border-zinc-700 dark:bg-zinc-800">
                                     </th>
