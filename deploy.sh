@@ -23,6 +23,7 @@ php artisan migrate --force
 # Instalar dependencias de JS y compilar
 echo "🎨 Compilando assets (NPM)..."
 npm install
+php artisan wayfinder:generate
 npm run build
 
 # Limpiar y optimizar cachés
