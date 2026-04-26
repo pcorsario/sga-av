@@ -123,6 +123,9 @@ defineOptions({
                                 >
                                     {{ course.subjects.length }} Materias Base
                                 </p>
+                                <p v-if="course.tutor" class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                    Tutor: {{ course.tutor.name }}
+                                </p>
                             </div>
                             <div
                                 class="rounded-xl bg-blue-100 p-2 text-sm font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"

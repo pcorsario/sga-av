@@ -7,11 +7,13 @@ import type { Team } from '@/types';
 
 const props = defineProps<{
     currentTeam?: Team | null;
+    teachers: Array<{ id: number; name: string }>;
 }>();
 
 const form = useForm({
     name: '',
     level: 'Básica Superior',
+    tutor_id: null as number | null,
 });
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -147,34 +149,61 @@ defineOptions({
                         </p>
                     </div>
 
-                    <div>
-                        <label
-                            for="level"
-                            class="mb-2 block text-sm font-bold text-zinc-900 dark:text-zinc-100"
-                            >Nivel de Educación</label
-                        >
-                        <select
-                            id="level"
-                            v-model="form.level"
-                            required
-                            class="w-full rounded-xl border-zinc-300 bg-white px-4 py-3 text-zinc-900 shadow-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                            :class="{ 'border-red-500': form.errors.level }"
-                        >
-                            <option value="Básica Elemental">
-                                Básica Elemental
-                            </option>
-                            <option value="Básica Media">Básica Media</option>
-                            <option value="Básica Superior">
-                                Básica Superior
-                            </option>
-                            <option value="Bachillerato">Bachillerato</option>
-                        </select>
-                        <p
-                            v-if="form.errors.level"
-                            class="mt-2 text-xs font-bold text-red-500"
-                        >
-                            {{ form.errors.level }}
-                        </p>
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label
+                                for="level"
+                                class="mb-2 block text-sm font-bold text-zinc-900 dark:text-zinc-100"
+                                >Nivel de Educación</label
+                            >
+                            <select
+                                id="level"
+                                v-model="form.level"
+                                required
+                                class="w-full rounded-xl border-zinc-300 bg-white px-4 py-3 text-zinc-900 shadow-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                :class="{ 'border-red-500': form.errors.level }"
+                            >
+                                <option value="Básica Elemental">
+                                    Básica Elemental
+                                </option>
+                                <option value="Básica Media">Básica Media</option>
+                                <option value="Básica Superior">
+                                    Básica Superior
+                                </option>
+                                <option value="Bachillerato">Bachillerato</option>
+                            </select>
+                            <p
+                                v-if="form.errors.level"
+                                class="mt-2 text-xs font-bold text-red-500"
+                            >
+                                {{ form.errors.level }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label
+                                for="tutor_id"
+                                class="mb-2 block text-sm font-bold text-zinc-900 dark:text-zinc-100"
+                                >Tutor del Curso</label
+                            >
+                            <select
+                                id="tutor_id"
+                                v-model="form.tutor_id"
+                                class="w-full rounded-xl border-zinc-300 bg-white px-4 py-3 text-zinc-900 shadow-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                                :class="{ 'border-red-500': form.errors.tutor_id }"
+                            >
+                                <option :value="null">Ninguno / Sin asignar</option>
+                                <option v-for="teacher in teachers" :key="teacher.id" :value="teacher.id">
+                                    {{ teacher.name }}
+                                </option>
+                            </select>
+                            <p
+                                v-if="form.errors.tutor_id"
+                                class="mt-2 text-xs font-bold text-red-500"
+                            >
+                                {{ form.errors.tutor_id }}
+                            </p>
+                        </div>
                     </div>
                 </div>
 

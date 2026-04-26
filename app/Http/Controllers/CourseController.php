@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
 use App\Exports\CoursesTemplateExport;
 use App\Imports\CoursesImport;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Enums\RoleEnum;
 use App\Models\Course;
 use App\Models\CourseSubject;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CourseController extends Controller
 {
@@ -37,11 +38,11 @@ class CourseController extends Controller
 
         try {
             Excel::import(new CoursesImport, $request->file('file'));
-            
+
             return redirect()->route('courses.index', ['current_team' => $current_team])
                 ->with('status', 'Cursos importados exitosamente.');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['file' => 'Error al importar archivo: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['file' => 'Error al importar archivo: '.$e->getMessage()]);
         }
     }
 
@@ -54,7 +55,7 @@ class CourseController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        $courses = Course::with('subjects')->orderBy('level')->orderBy('name')->get();
+        $courses = Course::with(['subjects', 'tutor'])->orderBy('level')->orderBy('name')->get();
 
         return Inertia::render('Academic/Courses/Index', [
             'courses' => $courses,
@@ -70,7 +71,11 @@ class CourseController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        return Inertia::render('Academic/Courses/Create');
+        $teachers = User::role(RoleEnum::Profesor->value)->orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('Academic/Courses/Create', [
+            'teachers' => $teachers,
+        ]);
     }
 
     /**
@@ -85,6 +90,7 @@ class CourseController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'level' => 'required|string|max:255',
+            'tutor_id' => 'nullable|exists:users,id',
         ]);
 
         Course::create($validated);

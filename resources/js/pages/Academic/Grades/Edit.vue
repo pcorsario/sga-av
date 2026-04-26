@@ -439,7 +439,7 @@ const overallStatus = computed(() => {
                     </template>
                 </div>
 
-                <!-- Botón de Reporte PDF -->
+                <!-- Botón de Reporte PDF (Diagnóstico) -->
                 <a v-if="activeTab === 'diag'" :href="academic?.role === 'profesor'
                         ? teachers.grades.pdf.url({
                             courseSubject: props.courseSubject.id,
@@ -457,6 +457,28 @@ const overallStatus = computed(() => {
                             clip-rule="evenodd" />
                     </svg>
                     Reporte PDF
+                </a>
+
+                <!-- Botón de Reporte PDF (Trimestral) -->
+                <a v-if="['t1', 't2', 't3'].includes(activeTab)" :href="academic?.role === 'profesor'
+                        ? teachers.grades.trimestre.pdf.url({
+                            courseSubject: props.courseSubject.id,
+                            trimestre: activeTab,
+                        })
+                        : grades.trimestre.pdf.url({
+                            current_team: props.currentTeam?.slug ?? '',
+                            courseSubject: props.courseSubject.id,
+                            trimestre: activeTab,
+                        })
+                    " target="_blank"
+                    class="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-700 shadow-sm transition hover:bg-red-100 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600 dark:text-red-500" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Reporte {{ activeTab.replace('t', '') }}T
                 </a>
 
                 <!-- Import Excel (Hidden input) -->

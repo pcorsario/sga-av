@@ -242,6 +242,135 @@ class GradeController extends Controller
         return ['text' => 'INICIADO', 'class' => 'iniciado'];
     }
 
+    public function exportTrimestrePdf(Request $request, $current_team, $courseSubject, $trimestre = null)
+    {
+        // Handle teacher route vs admin route parameter order
+        if (! $courseSubject instanceof CourseSubject) {
+            $courseSubject = CourseSubject::findOrFail($current_team);
+            $trimestre = request()->route('trimestre');
+        }
+
+        $courseSubject->load(['course.tutor', 'subject', 'teacher']);
+
+        $students = User::role(RoleEnum::Estudiante->value)
+            ->whereHas('enrollments', function ($q) use ($courseSubject) {
+                $q->where('course_id', $courseSubject->course_id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        $grades = Grade::where('course_subject_id', $courseSubject->id)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        $studentsData = [];
+        $stats = [
+            'DA' => ['count' => 0, 'percentage' => 0],
+            'AA' => ['count' => 0, 'percentage' => 0],
+            'PA' => ['count' => 0, 'percentage' => 0],
+            'NA' => ['count' => 0, 'percentage' => 0],
+            'total' => 0,
+            'media' => 0,
+        ];
+        $sumMedias = 0;
+
+        foreach ($students as $student) {
+            $grade = $grades[$student->id] ?? null;
+
+            // Insumos Individuales (average of non-null)
+            $indSum = 0;
+            $indCount = 0;
+            for ($i = 1; $i <= 6; $i++) {
+                $val = $grade ? $grade->{"{$trimestre}_ind_{$i}"} : null;
+                if ($val !== null) {
+                    $indSum += (float) $val;
+                    $indCount++;
+                }
+            }
+            $promInd = $indCount > 0 ? $indSum / $indCount : 0;
+            if ($grade && $grade->{"{$trimestre}_ref_1"} !== null) {
+                $promInd = max($promInd, (float) $grade->{"{$trimestre}_ref_1"});
+            }
+
+            // Insumos Grupales (average of non-null)
+            $grpSum = 0;
+            $grpCount = 0;
+            for ($i = 1; $i <= 6; $i++) {
+                $val = $grade ? $grade->{"{$trimestre}_grp_{$i}"} : null;
+                if ($val !== null) {
+                    $grpSum += (float) $val;
+                    $grpCount++;
+                }
+            }
+            $promGrp = $grpCount > 0 ? $grpSum / $grpCount : 0;
+            if ($grade && $grade->{"{$trimestre}_ref_2"} !== null) {
+                $promGrp = max($promGrp, (float) $grade->{"{$trimestre}_ref_2"});
+            }
+
+            $promedioActividades = ($promInd + $promGrp) / 2;
+            $actividades70 = $promedioActividades * 0.70;
+
+            $notaProyecto = $grade ? (float) ($grade->{"{$trimestre}_proj"} ?? 0) : 0;
+            $proyecto10 = $notaProyecto * 0.10;
+
+            $notaEvaluacion = $grade ? (float) ($grade->{"{$trimestre}_eval"} ?? 0) : 0;
+            $evaluacion20 = $notaEvaluacion * 0.20;
+
+            $promedioParcial = $actividades70 + $proyecto10 + $evaluacion20;
+
+            $escala = 'NA';
+            if ($promedioParcial >= 9) {
+                $escala = 'DA';
+            } elseif ($promedioParcial >= 7) {
+                $escala = 'AA';
+            } elseif ($promedioParcial >= 4.01) {
+                $escala = 'PA';
+            }
+
+            $stats[$escala]['count']++;
+            $stats['total']++;
+            $sumMedias += $promedioParcial;
+
+            $studentsData[] = [
+                'name' => $student->name,
+                'promedio_actividades' => $promedioActividades,
+                'actividades_70' => $actividades70,
+                'nota_proyecto' => $notaProyecto,
+                'proyecto_10' => $proyecto10,
+                'nota_evaluacion' => $notaEvaluacion,
+                'evaluacion_20' => $evaluacion20,
+                'promedio_parcial' => $promedioParcial,
+                'escala' => $escala,
+            ];
+        }
+
+        if ($stats['total'] > 0) {
+            $stats['DA']['percentage'] = ($stats['DA']['count'] / $stats['total']) * 100;
+            $stats['AA']['percentage'] = ($stats['AA']['count'] / $stats['total']) * 100;
+            $stats['PA']['percentage'] = ($stats['PA']['count'] / $stats['total']) * 100;
+            $stats['NA']['percentage'] = ($stats['NA']['count'] / $stats['total']) * 100;
+            $stats['media'] = $sumMedias / $stats['total'];
+        }
+
+        $trimestreNames = [
+            't1' => 'Primer Trimestre',
+            't2' => 'Segundo Trimestre',
+            't3' => 'Tercer Trimestre',
+        ];
+
+        $pdf = Pdf::loadView('reports.trimestre', [
+            'courseSubject' => $courseSubject,
+            'students' => $studentsData,
+            'stats' => $stats,
+            'trimestreName' => $trimestreNames[$trimestre] ?? 'Trimestre',
+            'teacherName' => $courseSubject->teacher->name ?? 'Docente no asignado',
+            'tutorName' => $courseSubject->course->tutor->name ?? 'Tutor no asignado',
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download("Reporte_{$trimestre}_{$courseSubject->subject->name}.pdf");
+    }
+
     public function exportExcel(Request $request, $current_team, $courseSubject = null)
     {
         if (! $courseSubject instanceof CourseSubject) {

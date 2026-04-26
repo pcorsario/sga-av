@@ -9,7 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
-    protected $fillable = ['name', 'level'];
+    protected $fillable = ['name', 'level', 'tutor_id'];
+
+    public function tutor()
+    {
+        return $this->belongsTo(User::class, 'tutor_id');
+    }
 
     public function courseSubjects()
     {
