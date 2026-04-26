@@ -18,11 +18,10 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class GradeController extends Controller
 {
-    public function edit(Request $request, $current_team, $courseSubject = null)
+    public function edit(Request $request)
     {
-        if (! $courseSubject instanceof CourseSubject) {
-            $courseSubject = CourseSubject::findOrFail($current_team);
-        }
+        $routeParam = $request->route('courseSubject');
+        $courseSubject = $routeParam instanceof CourseSubject ? $routeParam : CourseSubject::findOrFail($routeParam);
 
         $user = $request->user();
 
@@ -127,11 +126,10 @@ class GradeController extends Controller
         return $data;
     }
 
-    public function exportPdf(Request $request, $current_team, $courseSubject = null)
+    public function exportPdf(Request $request)
     {
-        if (! $courseSubject instanceof CourseSubject) {
-            $courseSubject = CourseSubject::findOrFail($current_team);
-        }
+        $routeParam = $request->route('courseSubject');
+        $courseSubject = $routeParam instanceof CourseSubject ? $routeParam : CourseSubject::findOrFail($routeParam);
 
         $user = $request->user();
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
@@ -242,13 +240,11 @@ class GradeController extends Controller
         return ['text' => 'INICIADO', 'class' => 'iniciado'];
     }
 
-    public function exportTrimestrePdf(Request $request, $current_team, $courseSubject, $trimestre = null)
+    public function exportTrimestrePdf(Request $request)
     {
-        // Handle teacher route vs admin route parameter order
-        if (! $courseSubject instanceof CourseSubject) {
-            $courseSubject = CourseSubject::findOrFail($current_team);
-            $trimestre = request()->route('trimestre');
-        }
+        $routeParam = $request->route('courseSubject');
+        $courseSubject = $routeParam instanceof CourseSubject ? $routeParam : CourseSubject::findOrFail($routeParam);
+        $trimestre = $request->route('trimestre');
 
         $courseSubject->load(['course.tutor', 'subject', 'teacher']);
 
@@ -371,11 +367,10 @@ class GradeController extends Controller
         return $pdf->download("Reporte_{$trimestre}_{$courseSubject->subject->name}.pdf");
     }
 
-    public function exportExcel(Request $request, $current_team, $courseSubject = null)
+    public function exportExcel(Request $request)
     {
-        if (! $courseSubject instanceof CourseSubject) {
-            $courseSubject = CourseSubject::findOrFail($current_team);
-        }
+        $routeParam = $request->route('courseSubject');
+        $courseSubject = $routeParam instanceof CourseSubject ? $routeParam : CourseSubject::findOrFail($routeParam);
 
         $user = $request->user();
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
@@ -390,11 +385,10 @@ class GradeController extends Controller
         );
     }
 
-    public function importExcel(Request $request, $current_team, $courseSubject = null)
+    public function importExcel(Request $request)
     {
-        if (! $courseSubject instanceof CourseSubject) {
-            $courseSubject = CourseSubject::findOrFail($current_team);
-        }
+        $routeParam = $request->route('courseSubject');
+        $courseSubject = $routeParam instanceof CourseSubject ? $routeParam : CourseSubject::findOrFail($routeParam);
 
         $user = $request->user();
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
@@ -417,11 +411,10 @@ class GradeController extends Controller
         }
     }
 
-    public function update(Request $request, $current_team, $courseSubject = null)
+    public function update(Request $request)
     {
-        if (! $courseSubject instanceof CourseSubject) {
-            $courseSubject = CourseSubject::findOrFail($current_team);
-        }
+        $routeParam = $request->route('courseSubject');
+        $courseSubject = $routeParam instanceof CourseSubject ? $routeParam : CourseSubject::findOrFail($routeParam);
 
         $user = $request->user();
 
