@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import { dashboard } from '@/routes';
@@ -112,6 +112,57 @@ const submit = () => {
         },
     });
 };
+
+const excelFileInput = ref<HTMLInputElement | null>(null);
+const isImporting = ref(false);
+const importSuccess = ref(false);
+
+const triggerExcelUpload = () => {
+    excelFileInput.value?.click();
+};
+
+const handleExcelUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (!target.files?.length) return;
+
+    const file = target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const url = props.academic?.role === 'profesor'
+        ? teachers.grades.excel.import.url({ courseSubject: props.courseSubject.id })
+        : grades.excel.import.url({
+              current_team: props.currentTeam?.slug ?? '',
+              courseSubject: props.courseSubject.id,
+          });
+
+    isImporting.value = true;
+    importSuccess.value = false;
+
+    router.post(url, formData, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            if (target) target.value = '';
+            isImporting.value = false;
+            importSuccess.value = true;
+            setTimeout(() => {
+                importSuccess.value = false;
+            }, 3000);
+        },
+        onError: () => {
+            if (target) target.value = '';
+            isImporting.value = false;
+        }
+    });
+};
+
+watch(() => props.students, (newStudents) => {
+    // Only update if not actively saving to avoid overwriting typed data
+    if (!isSaving.value) {
+        form.grades = newStudents.map(buildGradeData);
+    }
+}, { deep: true });
 
 const autoSave = useDebounceFn(() => {
     isSaving.value = true;
@@ -406,6 +457,50 @@ const overallStatus = computed(() => {
                             clip-rule="evenodd" />
                     </svg>
                     Reporte PDF
+                </a>
+
+                <!-- Import Excel (Hidden input) -->
+                <input type="file" ref="excelFileInput" class="hidden" accept=".xlsx,.xls" @change="handleExcelUpload" />
+
+                <!-- Botón Importar Excel -->
+                <button type="button" @click="triggerExcelUpload" :disabled="isImporting"
+                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                    
+                    <template v-if="isImporting">
+                        <div class="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent"></div>
+                        Importando...
+                    </template>
+                    
+                    <template v-else-if="importSuccess">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        ¡Importado!
+                    </template>
+
+                    <template v-else>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Importar Calificaciones
+                    </template>
+                </button>
+
+                <!-- Botón Descargar Plantilla -->
+                <a :href="academic?.role === 'profesor'
+                        ? teachers.grades.excel.export.url({
+                            courseSubject: props.courseSubject.id,
+                        })
+                        : grades.excel.export.url({
+                            current_team: props.currentTeam?.slug ?? '',
+                            courseSubject: props.courseSubject.id,
+                        })
+                    " target="_blank"
+                    class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Descargar Plantilla
                 </a>
 
                 <span

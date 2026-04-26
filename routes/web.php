@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\AcademicDashboardController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\GradeController;
@@ -9,16 +10,17 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if (Auth::check()) {
         $user = Auth::user();
-        if ($user->hasRole(App\Enums\RoleEnum::Profesor->value)) {
+        if ($user->hasRole(RoleEnum::Profesor->value)) {
             return redirect()->route('teachers.dashboard');
         }
+
         return redirect()->route('dashboard', ['current_team' => $user->currentTeam->slug]);
     }
 
@@ -37,6 +39,8 @@ Route::prefix('teachers')
         Route::get('dashboard', AcademicDashboardController::class)->name('teachers.dashboard');
         Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('teachers.grades.edit');
         Route::get('grades/{courseSubject}/pdf', [GradeController::class, 'exportPdf'])->name('teachers.grades.pdf');
+        Route::get('grades/{courseSubject}/excel', [GradeController::class, 'exportExcel'])->name('teachers.grades.excel.export');
+        Route::post('grades/{courseSubject}/excel', [GradeController::class, 'importExcel'])->name('teachers.grades.excel.import');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('teachers.grades.update');
     });
 
@@ -48,6 +52,8 @@ Route::prefix('{current_team}')
         // Rutas Académicas
         Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('grades.edit');
         Route::get('grades/{courseSubject}/pdf', [GradeController::class, 'exportPdf'])->name('grades.pdf');
+        Route::get('grades/{courseSubject}/excel', [GradeController::class, 'exportExcel'])->name('grades.excel.export');
+        Route::post('grades/{courseSubject}/excel', [GradeController::class, 'importExcel'])->name('grades.excel.import');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('grades.update');
 
         // Malla Curricular (Cursos y Materias)
@@ -83,9 +89,8 @@ Route::prefix('{current_team}')
             ->parameters(['teachers' => 'teacher']);
     });
 
-
 Route::middleware(['auth'])->group(function () {
     Route::get('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';
