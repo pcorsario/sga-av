@@ -178,61 +178,126 @@
                 </tr>
             @endforeach
         </tbody>
+        <tfoot>
+            <tr style="font-weight: bold; background: #ffffff;">
+                <td colspan="2" style="text-align: right; padding-right: 10px;">TOTAL :</td>
+                @for($i = 1; $i <= 10; $i++)
+                    <td>{{ $columnTotals[$i] ?? 0 }}</td>
+                @endfor
+                <td>{{ $totalSelections }}</td>
+                <td>{{ $overallPercentage }}%</td>
+                <td></td>
+            </tr>
+            <tr style="font-weight: bold; background: #ffffff;">
+                <td colspan="2" style="text-align: right; padding-right: 10px; font-size: 5.5pt">PORCENTAJE :</td>
+                @for($i = 1; $i <= 10; $i++)
+                    <td>{{ number_format($columnPercentages[$i] ?? 0, 2, ',', '') }}%</td>
+                @endfor
+                <td style="border: none;"></td>
+                <td style="border: none;"></td>
+                <td style="border: none;"></td>
+            </tr>
+            <tr style="background: #ffffff; text-align: center;">
+                <td colspan="2" style="border: none;"></td>
+                @for($i = 1; $i <= 10; $i++)
+                    <td style="font-size: 5pt; padding-top: 5px; padding-bottom: 5px; vertical-align: top;">
+                        {!! implode('<br>', str_split(str_replace('EN PROCESO', 'PROCESO', $columnEscalas[$i] ?? ''))) !!}
+                    </td>
+                @endfor
+                <td style="border: none;"></td>
+                <td style="border: none;"></td>
+                <td style="border: none;"></td>
+            </tr>
+        </tfoot>
     </table>
 
-    <div class="charts-container">
-        <!-- Gráfico de Pastel (Versión IMG Data URI) -->
-        <div class="chart-wrapper" style="margin-right: 2%">
-            <div class="chart-title">Porcentajes de Rendimiento</div>
-            <div class="pie-box">
-                @php
-                    $svgContent = '<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
-                    foreach ($pieData as $slice) {
-                        $svgContent .= '<path d="' . $slice['path'] . '" fill="' . $slice['color'] . '" stroke-width="0" />';
-                    }
-                    $svgContent .= '<circle cx="50" cy="50" r="25" fill="#ffffff" />'; // Donut hole
-                    $svgContent .= '</svg>';
-                    $base64Svg = base64_encode($svgContent);
-                @endphp
-                <img src="data:image/svg+xml;base64,{{ $base64Svg }}" class="pie-image">
-                {{-- <div class="pie-overlay">{{ $overallPercentage }}%</div> --}}
-            </div>
-            <div class="legend-row">
-                <div class="legend-item"><span class="dot" style="background:#6d28d9"></span>Logrado</div>
-                <div class="legend-item"><span class="dot" style="background:#8b5cf6"></span>Proceso</div>
-                <div class="legend-item"><span class="dot" style="background:#c4b5fd"></span>Iniciado</div>
-            </div>
+    <table style="width: 100%; margin-top: 15px; border: none;">
+        <tr>
+            <!-- OBSERVACION -->
+            <td style="width: 25%; border: none; vertical-align: top;">
+                <div style="font-weight: bold; font-size: 7.5pt; margin-bottom: 5px;">OBSERVACION:</div>
+                <div style="font-size: 7pt; line-height: 1.3;">
+                    INICIADO = 0% a 38%<br>
+                    PROCESO = 39% a 69%<br>
+                    LOGRADO = 70% a 100%
+                </div>
+            </td>
+
+            <!-- Gráfico de Pastel -->
+            <td style="width: 35%; border: none; text-align: center; vertical-align: top;">
+                <div style="width: 90%; border: 1px solid #ccc; border-radius: 8px; padding: 5px; display: inline-block;">
+                    <div style="font-size: 6.5pt; color: #555; margin-bottom: 5px;">Porcentajes</div>
+                    <table style="width: 100%; border: none;">
+                        <tr>
+                            <td style="border: none; text-align: right; width: 55%; vertical-align: middle;">
+                                <div style="position: relative; width: 90px; height: 90px; margin: 0 auto;">
+                                    @php
+                                        $svgContent = '<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
+                                        foreach ($pieData as $slice) {
+                                            $svgContent .= '<path d="' . $slice['path'] . '" fill="' . $slice['color'] . '" stroke-width="0" />';
+                                        }
+                                        $svgContent .= '</svg>';
+                                        $base64Svg = base64_encode($svgContent);
+                                    @endphp
+                                    <img src="data:image/svg+xml;base64,{{ $base64Svg }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                </div>
+                            </td>
+                            <td style="border: none; text-align: left; vertical-align: middle; padding-left: 10px; font-size: 5.5pt; font-weight: bold;">
+                                <div style="margin-bottom: 4px;"><span style="display: inline-block; width: 6px; height: 6px; background:#4f81bd; margin-right: 3px;"></span>INICIADO</div>
+                                <div style="margin-bottom: 4px;"><span style="display: inline-block; width: 6px; height: 6px; background:#c0504d; margin-right: 3px;"></span>PROCESO</div>
+                                <div><span style="display: inline-block; width: 6px; height: 6px; background:#9bbb59; margin-right: 3px;"></span>LOGRADO</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+
+            <!-- Gráfico de Barras -->
+            <td style="width: 35%; border: none; text-align: center; vertical-align: top;">
+                <div style="width: 90%; border: 1px solid #ccc; border-radius: 8px; padding: 5px; display: inline-block;">
+                    <div style="font-size: 6.5pt; color: #555; margin-bottom: 5px;">Porcentajes</div>
+                    <table style="width: 100%; border: none;">
+                        <tr>
+                            <td style="border: none; width: 55%; vertical-align: bottom; height: 90px;">
+                                <table style="height: 75px; width: 80%; border-bottom: 1px solid #000; border-left: 1px solid #000; margin: 0 auto; padding: 0;">
+                                    <tr>
+                                        @php $maxChart = max(1, max(array_values($statusCounts))); @endphp
+                                        @foreach(['INICIADO', 'EN PROCESO', 'LOGRADO'] as $label)
+                                            <td style="vertical-align: bottom; border: none; padding: 0 4px; width: 33%;">
+                                                <div style="width: 18px; height: {{ ($statusCounts[$label] / $maxChart) * 75 }}px; background: {{ $label === 'LOGRADO' ? '#9bbb59' : ($label === 'EN PROCESO' ? '#c0504d' : '#4f81bd') }}; margin: 0 auto;"></div>
+                                            </td>
+                                        @endforeach
+                                    </tr>
+                                </table>
+                                <div style="text-align: center; font-size: 5pt; margin-top: 2px;">1</div>
+                            </td>
+                            <td style="border: none; text-align: left; vertical-align: middle; padding-left: 10px; font-size: 5.5pt; font-weight: bold;">
+                                <div style="margin-bottom: 4px;"><span style="display: inline-block; width: 6px; height: 6px; background:#4f81bd; margin-right: 3px;"></span>INICIADO</div>
+                                <div style="margin-bottom: 4px;"><span style="display: inline-block; width: 6px; height: 6px; background:#c0504d; margin-right: 3px;"></span>PROCESO</div>
+                                <div><span style="display: inline-block; width: 6px; height: 6px; background:#9bbb59; margin-right: 3px;"></span>LOGRADO</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 20px; border: 1px solid #000; padding: 8px;">
+        <strong style="font-size: 8pt; display: block; margin-bottom: 5px;">ANALISIS</strong>
+        <div style="font-size: 7pt; text-align: justify; line-height: 1.3;">
+            {{ $analisisTexto }}
         </div>
-
-        <!-- Gráfico de Barras -->
-        <div class="chart-wrapper">
-            <div class="chart-title">Distribución por Escala</div>
-            <div class="bar-area">
-                @php $maxChart = max(1, max(array_values($statusCounts))); @endphp
-                @foreach(['LOGRADO', 'EN PROCESO', 'INICIADO'] as $label)
-                    <div class="bar-col">
-                        <div class="bar-val">{{ $statusCounts[$label] }}</div>
-                        <div class="bar-fill" style="height: {{ ($statusCounts[$label] / $maxChart) * 100 }}%; 
-                             background: {{ $label === 'LOGRADO' ? '#6d28d9' : ($label === 'EN PROCESO' ? '#8b5cf6' : '#c4b5fd') }}">
-                        </div>
-                        <div class="bar-lab">{{ $label === 'EN PROCESO' ? 'PROCESO' : $label }}</div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
     </div>
 
-    <div style="margin-top: 15px; text-align: center; font-size: 7pt">
-        <strong style="color: #6d28d9">DISTRIBUCIÓN DE LOGROS:</strong> &nbsp;&nbsp;
-        LOGRADO: {{ $statusCounts['LOGRADO'] }} &nbsp;|&nbsp; 
-        PROCESO: {{ $statusCounts['EN PROCESO'] }} &nbsp;|&nbsp; 
-        INICIADO: {{ $statusCounts['INICIADO'] }}
-    </div>
-
-    <div style="margin-top: 15px">
-        <strong style="text-transform: uppercase">Análisis de Resultados:</strong>
-        <div style="border-bottom: 0.5px solid #ddd6fe; height: 16px; margin-top: 3px"></div>
-        <div style="border-bottom: 0.5px solid #ddd6fe; height: 16px; margin-top: 3px"></div>
-    </div>
+    <table style="width: 100%; margin-top: 40px; border: none;">
+        <tr>
+            <td style="width: 35%; border: none; border-top: 1px solid #000; text-align: center; font-weight: bold; padding-top: 5px; font-size: 7.5pt;">
+                {{ mb_strtoupper($teacher->name) }}<br>
+                FIRMA DEL DOCENTE
+            </td>
+            <td style="width: 65%; border: none;"></td>
+        </tr>
+    </table>
 </body>
 </html>

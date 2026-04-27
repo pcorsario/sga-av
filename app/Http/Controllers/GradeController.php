@@ -183,9 +183,9 @@ class GradeController extends Controller
         if ($totalStudents > 0) {
             $startAngle = 0;
             $colors = [
-                'LOGRADO' => '#6d28d9',
-                'EN PROCESO' => '#8b5cf6',
-                'INICIADO' => '#c4b5fd',
+                'LOGRADO' => '#9bbb59',    // Verde
+                'EN PROCESO' => '#c0504d', // Rojo
+                'INICIADO' => '#4f81bd',   // Azul
             ];
 
             foreach ($statusCounts as $label => $count) {
@@ -201,6 +201,8 @@ class GradeController extends Controller
 
                     $largeArc = $angle > 180 ? 1 : 0;
                     $pieData[] = [
+                        'label' => $label === 'EN PROCESO' ? 'PROCESO' : $label,
+                        'percentage' => round(($count / $totalStudents) * 100),
                         'path' => "M 50 50 L $x1 $y1 A 50 50 0 $largeArc 1 $x2 $y2 Z",
                         'color' => $colors[$label] ?? '#ccc',
                     ];
@@ -209,8 +211,44 @@ class GradeController extends Controller
             }
         }
 
-        $maxPossible = count($studentsData) * 10;
+        $maxPossible = $totalStudents * 10;
         $overallPercentage = $maxPossible > 0 ? round(($totalSelections / $maxPossible) * 100) : 0;
+
+        // Porcentajes por columna
+        $columnPercentages = [];
+        $columnEscalas = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $perc = $totalStudents > 0 ? round(($columnTotals[$i] / $totalStudents) * 100, 2) : 0;
+            $columnPercentages[$i] = $perc;
+            if ($perc > 69) {
+                $columnEscalas[$i] = 'LOGRADO';
+            } elseif ($perc >= 39) {
+                $columnEscalas[$i] = 'EN PROCESO';
+            } else {
+                $columnEscalas[$i] = 'INICIADO';
+            }
+        }
+
+        // Texto dinámico de Análisis
+        $totalEvaluados = array_sum($statusCounts);
+        $sortedStatus = $statusCounts;
+        arsort($sortedStatus);
+        $keys = array_keys($sortedStatus);
+        $faseMayoritaria = $keys[0] === 'EN PROCESO' ? 'PROCESO' : $keys[0];
+        $porcentajeMayor = $totalEvaluados > 0 ? round(($sortedStatus[$keys[0]] / $totalEvaluados) * 100, 1) : 0;
+        
+        $faseSecundaria = $keys[1] === 'EN PROCESO' ? 'PROCESO' : $keys[1];
+        $porcentajeSecundario = $totalEvaluados > 0 ? round(($sortedStatus[$keys[1]] / $totalEvaluados) * 100, 1) : 0;
+        
+        $materiaNombre = strtolower($courseSubject->subject->name);
+
+        if ($faseMayoritaria === 'LOGRADO') {
+            $analisisTexto = "Tenemos como resultado de la evaluación diagnóstica un {$porcentajeMayor}% lo que posiciona a este curso en la fase \"LOGRADO\" y un {$porcentajeSecundario}% como \"{$faseSecundaria}\". Aunque se obtuvo este porcentaje, creo que es necesario reforzar los conocimientos básicos de la materia de {$materiaNombre} para consolidar una base sólida. Esto será crucial para asegurar una comprensión adecuada y el éxito en la nueva temática que se abordará en este nuevo año.";
+        } elseif ($faseMayoritaria === 'PROCESO') {
+            $analisisTexto = "Tenemos como resultado de la evaluación diagnóstica un {$porcentajeMayor}% lo que posiciona a este curso en la fase \"PROCESO\" y un {$porcentajeSecundario}% como \"{$faseSecundaria}\". Es fundamental intensificar el refuerzo académico en la materia de {$materiaNombre} para que los estudiantes adquieran las destrezas necesarias. Esto permitirá nivelar el curso y prepararlos adecuadamente para los nuevos retos del año lectivo.";
+        } else {
+            $analisisTexto = "Tenemos como resultado de la evaluación diagnóstica un {$porcentajeMayor}% lo que posiciona a este curso en la fase \"INICIADO\" y un {$porcentajeSecundario}% como \"{$faseSecundaria}\". Es imperativo implementar estrategias de nivelación desde cero en la materia de {$materiaNombre}. La base actual es muy frágil, por lo que requeriremos un plan de acción intensivo en los primeros meses para evitar el rezago académico en los nuevos temas.";
+        }
 
         $pdf = Pdf::loadView('reports.diagnostic', [
             'course' => $courseSubject->course,
@@ -218,10 +256,13 @@ class GradeController extends Controller
             'teacher' => $courseSubject->teacher,
             'studentsData' => $studentsData,
             'columnTotals' => $columnTotals,
+            'columnPercentages' => $columnPercentages,
+            'columnEscalas' => $columnEscalas,
             'totalSelections' => $totalSelections,
             'overallPercentage' => $overallPercentage,
             'statusCounts' => $statusCounts,
             'pieData' => $pieData,
+            'analisisTexto' => $analisisTexto,
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download("Reporte_Diagnostico_{$courseSubject->subject->name}.pdf");
