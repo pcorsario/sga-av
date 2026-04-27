@@ -145,21 +145,27 @@
     <table style="border-top: none; width: 80%; margin: 0 auto; margin-top: 10px; margin-bottom: 10px;">
         <tr>
             <td style="width: 70%;">N° DE DESTREZAS PLANIFICADAS:</td>
-            <td class="text-center">4</td>
+            <td class="text-center">{{ $destrezasPlanificadas }}</td>
         </tr>
         <tr>
             <td>N° DE DESTREZAS LOGRADAS:</td>
-            <td class="text-center">3</td>
+            <td class="text-center">{{ $destrezasLogradas }}</td>
         </tr>
         <tr>
             <td>% DE DESTREZAS LOGRADAS:</td>
-            <td class="text-center">75%</td>
+            <td class="text-center">{{ $porcentajeDestrezas }}%</td>
         </tr>
         <tr>
             <td colspan="2" class="text-center" style="background-color: #f8f9fa;">FACTORES QUE NO PERMITIERON EL 100% DE DESARROLLO DE DESTREZAS:</td>
         </tr>
         <tr>
-            <td colspan="2" class="text-center text-bold">Actividades institucionales por lo general los días que se tiene con el curso</td>
+            <td colspan="2" class="text-center text-bold">
+                @if(count($causasTextos) > 0)
+                    {{ implode(', ', $causasTextos) }}
+                @else
+                    Actividades institucionales por lo general los días que se tiene con el curso
+                @endif
+            </td>
         </tr>
     </table>
 
@@ -237,12 +243,9 @@
     <div class="section-title" style="border: 1px solid #000; border-top: none;">4. CAUSAS O DIFICULTADES PARA EL BAJO RENDIMIENTO:</div>
     <div style="border: 1px solid #000; border-top: none; padding: 5px;">
         <ul>
-            <li>Dificultades de atención o concentración.</li>
-            <li>Desinterés por el estudio.</li>
-            <li>Dificultades de comprensión de conceptos básicos.</li>
-            <li>Aparentes problemas de memoria.</li>
-            <li>Problemas con los compañeros de clase.</li>
-            <li>No presentan actividades, deberes.</li>
+            @foreach($causasTextos as $causa)
+                <li>{{ $causa }}</li>
+            @endforeach
         </ul>
     </div>
 
@@ -251,11 +254,9 @@
     <div style="border: 1px solid #000; border-top: none; padding: 5px; text-align: justify;">
         Para mejorar el rendimiento académico y consecuentemente las calificaciones, se ha utilizado diferentes estrategias, entre las cuales tenemos:
         <ul style="margin-top: 5px;">
-            <li>Organizar actividades individuales y en grupo que requieran la colaboración y el intercambio de conocimientos entre estudiantes.</li>
-            <li>Implementar evaluaciones formativas permanentes para verificar el progreso de los estudiantes y ajustar las estrategias de enseñanza según sea necesario.</li>
-            <li>Mantener una comunicación abierta y constante con los docentes tutores y padres de familia o representantes legales.</li>
-            <li>Proporcionar retroalimentación oportuna de las actividades realizadas por los estudiantes, destacando los logros y las áreas en las que puede mejorar.</li>
-            <li>Brindar oportunidades para mejorar las calificaciones, tanto de evaluaciones formativas como sumativas, acorde a lo determinado en el modelo institucional de evaluación educativa (MIEE).</li>
+            @foreach($medidasTextos as $medida)
+                <li>{{ $medida }}</li>
+            @endforeach
         </ul>
     </div>
 
@@ -263,10 +264,9 @@
     <div class="section-title" style="border: 1px solid #000; border-top: none;">6. RECOMENDACIONES PARA PROMOVER EL APRENDIZAJE:</div>
     <div style="border: 1px solid #000; border-top: none; padding: 5px; text-align: justify;">
         <ul>
-            <li>Que los estudiantes se involucren en las actividades de clase, realizar preguntas, buscar ejemplos prácticos y aplicar los conocimientos adquiridos.</li>
-            <li>En casa utilizar diferentes técnicas de estudio, como videos, gráficos, resúmenes y mapas conceptuales, para enriquecer la comprensión.</li>
-            <li>Aprovechar las oportunidades para presentar actividades y mejoramiento de calificaciones.</li>
-            <li>Realizar actividades prácticas que se involucren el diseño de aplicaciones en entornos reales.</li>
+            @foreach($recomendacionesTextos as $recomendacion)
+                <li>{{ $recomendacion }}</li>
+            @endforeach
         </ul>
     </div>
 

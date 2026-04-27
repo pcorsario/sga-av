@@ -40,6 +40,8 @@ Route::prefix('teachers')
         Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('teachers.grades.edit');
         Route::get('grades/{courseSubject}/pdf', [GradeController::class, 'exportPdf'])->name('teachers.grades.pdf');
         Route::get('grades/{courseSubject}/trimestre/{trimestre}/pdf', [GradeController::class, 'exportTrimestrePdf'])->name('teachers.grades.trimestre.pdf');
+        Route::get('grades/{courseSubject}/settings/{trimestre}', [\App\Http\Controllers\ReportSettingController::class, 'show'])->name('teachers.grades.settings.show');
+        Route::post('grades/{courseSubject}/settings/{trimestre}', [\App\Http\Controllers\ReportSettingController::class, 'update'])->name('teachers.grades.settings.update');
         Route::get('grades/{courseSubject}/excel', [GradeController::class, 'exportExcel'])->name('teachers.grades.excel.export');
         Route::post('grades/{courseSubject}/excel', [GradeController::class, 'importExcel'])->name('teachers.grades.excel.import');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('teachers.grades.update');
@@ -54,6 +56,8 @@ Route::prefix('{current_team}')
         Route::get('grades/{courseSubject}', [GradeController::class, 'edit'])->name('grades.edit');
         Route::get('grades/{courseSubject}/pdf', [GradeController::class, 'exportPdf'])->name('grades.pdf');
         Route::get('grades/{courseSubject}/trimestre/{trimestre}/pdf', [GradeController::class, 'exportTrimestrePdf'])->name('grades.trimestre.pdf');
+        Route::get('grades/{courseSubject}/settings/{trimestre}', [\App\Http\Controllers\ReportSettingController::class, 'show'])->name('grades.settings.show');
+        Route::post('grades/{courseSubject}/settings/{trimestre}', [\App\Http\Controllers\ReportSettingController::class, 'update'])->name('grades.settings.update');
         Route::get('grades/{courseSubject}/excel', [GradeController::class, 'exportExcel'])->name('grades.excel.export');
         Route::post('grades/{courseSubject}/excel', [GradeController::class, 'importExcel'])->name('grades.excel.import');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('grades.update');

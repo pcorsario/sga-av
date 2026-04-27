@@ -23,6 +23,66 @@ const activeSubTab = ref<'ind' | 'grp' | 'trimestral'>('ind');
 const isSaving = ref(false);
 const lastSaved = ref<Date | null>(null);
 
+const isSettingsModalOpen = ref(false);
+const isSettingsSaving = ref(false);
+const reportOptionsCatalog = ref<Record<string, Record<string, any[]>>>({});
+const reportSettingsForm = useForm({
+    destrezas_planificadas: 0,
+    destrezas_logradas: 0,
+    causas: [] as number[],
+    medidas: [] as number[],
+    recomendaciones: [] as number[],
+});
+
+const openReportSettingsModal = async () => {
+    isSettingsModalOpen.value = true;
+    try {
+        const trimestreUrl = activeTab.value === 't1' ? 't1' : activeTab.value === 't2' ? 't2' : 't3';
+        const url = props.academic?.role === 'profesor' 
+            ? teachers.grades.settings.show.url({ courseSubject: props.courseSubject.id, trimestre: trimestreUrl })
+            : grades.settings.show.url({ courseSubject: props.courseSubject.id, current_team: props.currentTeam?.slug, trimestre: trimestreUrl });
+        
+        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const data = await response.json();
+        
+        reportOptionsCatalog.value = data.options;
+        reportSettingsForm.destrezas_planificadas = data.setting.destrezas_planificadas;
+        reportSettingsForm.destrezas_logradas = data.setting.destrezas_logradas;
+        reportSettingsForm.causas = data.setting.causas || [];
+        reportSettingsForm.medidas = data.setting.medidas || [];
+        reportSettingsForm.recomendaciones = data.setting.recomendaciones || [];
+    } catch (e) {
+        console.error(e);
+    }
+};
+
+const saveReportSettings = async () => {
+    isSettingsSaving.value = true;
+    try {
+        const trimestreUrl = activeTab.value === 't1' ? 't1' : activeTab.value === 't2' ? 't2' : 't3';
+        const url = props.academic?.role === 'profesor' 
+            ? teachers.grades.settings.update.url({ courseSubject: props.courseSubject.id, trimestre: trimestreUrl })
+            : grades.settings.update.url({ courseSubject: props.courseSubject.id, current_team: props.currentTeam?.slug, trimestre: trimestreUrl });
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || ''
+            },
+            body: JSON.stringify(reportSettingsForm.data())
+        });
+        isSettingsModalOpen.value = false;
+    } catch (e) {
+        console.error(e);
+    } finally {
+        isSettingsSaving.value = false;
+    }
+};
+
 const buildGradeData = (s: any) => ({
     id: s.id,
     name: s.name,
@@ -776,6 +836,13 @@ const overallStatus = computed(() => {
                             ]">
                                 Resumen Trimestral
                             </button>
+                            <button v-if="activeTab !== 'diag'" type="button" @click="openReportSettingsModal()" class="rounded-xl px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-black bg-white text-purple-600 hover:bg-purple-50 border border-purple-200 shadow-sm flex items-center gap-1 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                  <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                                </svg>
+                                Datos acta
+                            </button>
                         </div>
                     </div>
 
@@ -1114,6 +1181,88 @@ const overallStatus = computed(() => {
                 </div>
             </Transition> -->
         </form>
+        <!-- Modal de Datos Acta -->
+        <div v-if="isSettingsModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                <div class="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-800/50 rounded-t-2xl">
+                    <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-200">Datos para el Acta</h3>
+                    <button @click="isSettingsModalOpen = false" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-8">
+                    <!-- Destrezas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">Destrezas Planificadas</label>
+                            <input type="number" v-model="reportSettingsForm.destrezas_planificadas" class="w-full rounded-lg border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 focus:border-purple-500 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">Destrezas Logradas</label>
+                            <input type="number" v-model="reportSettingsForm.destrezas_logradas" class="w-full rounded-lg border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 focus:border-purple-500 focus:ring-purple-500">
+                        </div>
+                    </div>
+
+                    <!-- Causas -->
+                    <div>
+                        <h4 class="text-sm font-black text-purple-600 uppercase tracking-wider mb-4 border-b border-purple-100 pb-2">CAUSAS O DIFICULTADES PARA EL BAJO RENDIMIENTO</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="(options, category) in reportOptionsCatalog.causa" :key="category" class="space-y-2">
+                                <h5 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-2">{{ category }}</h5>
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="reportSettingsForm.causas" class="mt-0.5 rounded border-zinc-300 text-purple-600 focus:ring-purple-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medidas -->
+                    <div>
+                        <h4 class="text-sm font-black text-amber-600 uppercase tracking-wider mb-4 border-b border-amber-100 pb-2">MEDIDAS ADOPTADAS POR EL/LA DOCENTE</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="(options, category) in reportOptionsCatalog.medida" :key="category" class="space-y-2">
+                                <h5 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-2">{{ category }}</h5>
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="reportSettingsForm.medidas" class="mt-0.5 rounded border-zinc-300 text-amber-600 focus:ring-amber-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recomendaciones -->
+                    <div>
+                        <h4 class="text-sm font-black text-emerald-600 uppercase tracking-wider mb-4 border-b border-emerald-100 pb-2">RECOMENDACIONES PARA PROMOVER EL APRENDIZAJE</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="(options, category) in reportOptionsCatalog.recomendacion" :key="category" class="space-y-2">
+                                <h5 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-2">{{ category }}</h5>
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="reportSettingsForm.recomendaciones" class="mt-0.5 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-b-2xl">
+                    <button @click="isSettingsModalOpen = false" type="button" class="px-4 py-2 text-sm font-bold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                        Cancelar
+                    </button>
+                    <button @click="saveReportSettings" :disabled="isSettingsSaving" type="button" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                        <svg v-if="isSettingsSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Guardar Ajustes
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 

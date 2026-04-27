@@ -406,6 +406,24 @@ class GradeController extends Controller
             't3' => 'Tercer Trimestre',
         ];
 
+        // Cargar Ajustes del Acta (Destrezas, Causas, Medidas, Recomendaciones)
+        $reportSetting = \App\Models\ReportSetting::where('course_subject_id', $courseSubject->id)
+            ->where('trimestre', $trimestre)
+            ->first();
+
+        $destrezasPlanificadas = $reportSetting ? $reportSetting->destrezas_planificadas : 0;
+        $destrezasLogradas = $reportSetting ? $reportSetting->destrezas_logradas : 0;
+        $porcentajeDestrezas = $destrezasPlanificadas > 0 ? round(($destrezasLogradas / $destrezasPlanificadas) * 100) : 0;
+
+        // Obtener textos de opciones si existen, de lo contrario los predeterminados
+        $causasIds = $reportSetting && $reportSetting->causas ? $reportSetting->causas : \App\Models\ReportOption::where('type', 'causa')->where('is_default', true)->pluck('id')->toArray();
+        $medidasIds = $reportSetting && $reportSetting->medidas ? $reportSetting->medidas : \App\Models\ReportOption::where('type', 'medida')->where('is_default', true)->pluck('id')->toArray();
+        $recomendacionesIds = $reportSetting && $reportSetting->recomendaciones ? $reportSetting->recomendaciones : \App\Models\ReportOption::where('type', 'recomendacion')->where('is_default', true)->pluck('id')->toArray();
+
+        $causasTextos = \App\Models\ReportOption::whereIn('id', $causasIds)->pluck('description')->toArray();
+        $medidasTextos = \App\Models\ReportOption::whereIn('id', $medidasIds)->pluck('description')->toArray();
+        $recomendacionesTextos = \App\Models\ReportOption::whereIn('id', $recomendacionesIds)->pluck('description')->toArray();
+
         $pdf = Pdf::loadView('reports.trimestre', [
             'courseSubject' => $courseSubject,
             'students' => $studentsData,
@@ -413,6 +431,12 @@ class GradeController extends Controller
             'trimestreName' => $trimestreNames[$trimestre] ?? 'Trimestre',
             'teacherName' => $courseSubject->teacher->name ?? 'Docente no asignado',
             'tutorName' => $courseSubject->course->tutor->name ?? 'Tutor no asignado',
+            'destrezasPlanificadas' => $destrezasPlanificadas,
+            'destrezasLogradas' => $destrezasLogradas,
+            'porcentajeDestrezas' => $porcentajeDestrezas,
+            'causasTextos' => $causasTextos,
+            'medidasTextos' => $medidasTextos,
+            'recomendacionesTextos' => $recomendacionesTextos,
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download("Reporte_{$trimestre}_{$courseSubject->subject->name}.pdf");
