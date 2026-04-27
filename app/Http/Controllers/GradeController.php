@@ -268,6 +268,8 @@ class GradeController extends Controller
             'NA' => ['count' => 0, 'percentage' => 0],
             'total' => 0,
             'media' => 0,
+            'mayor_7' => 0,
+            'menor_7' => 0,
         ];
         $sumMedias = 0;
 
@@ -307,11 +309,11 @@ class GradeController extends Controller
             $promedioActividades = ($promInd + $promGrp) / 2;
             $actividades70 = $promedioActividades * 0.70;
 
-            $notaProyecto = $grade ? (float) ($grade->{"{$trimestre}_proj"} ?? 0) : 0;
-            $proyecto10 = $notaProyecto * 0.10;
+            $notaProyecto = $grade ? $grade->{"{$trimestre}_proj"} : null;
+            $proyecto10 = $notaProyecto !== null ? (float) $notaProyecto * 0.10 : 0;
 
-            $notaEvaluacion = $grade ? (float) ($grade->{"{$trimestre}_eval"} ?? 0) : 0;
-            $evaluacion20 = $notaEvaluacion * 0.20;
+            $notaEvaluacion = $grade ? $grade->{"{$trimestre}_eval"} : null;
+            $evaluacion20 = $notaEvaluacion !== null ? (float) $notaEvaluacion * 0.20 : 0;
 
             $promedioParcial = $actividades70 + $proyecto10 + $evaluacion20;
 
@@ -324,20 +326,28 @@ class GradeController extends Controller
                 $escala = 'PA';
             }
 
-            $stats[$escala]['count']++;
-            $stats['total']++;
-            $sumMedias += $promedioParcial;
+            // Flags para la tabla (SIN EXAMEN SE, SIN CALIFICACION SC)
+            $sin_calificacion = $grade === null || ($promInd == 0 && $promGrp == 0 && $notaProyecto === null && $notaEvaluacion === null);
+            $sin_examen = !$sin_calificacion && $notaEvaluacion === null;
+
+            if (!$sin_calificacion) {
+                $stats[$escala]['count']++;
+                $stats['total']++;
+                $sumMedias += $promedioParcial;
+                
+                if ($promedioParcial >= 7) {
+                    $stats['mayor_7']++;
+                } else {
+                    $stats['menor_7']++;
+                }
+            }
 
             $studentsData[] = [
                 'name' => $student->name,
-                'promedio_actividades' => $promedioActividades,
-                'actividades_70' => $actividades70,
-                'nota_proyecto' => $notaProyecto,
-                'proyecto_10' => $proyecto10,
-                'nota_evaluacion' => $notaEvaluacion,
-                'evaluacion_20' => $evaluacion20,
                 'promedio_parcial' => $promedioParcial,
                 'escala' => $escala,
+                'sin_calificacion' => $sin_calificacion,
+                'sin_examen' => $sin_examen,
             ];
         }
 
