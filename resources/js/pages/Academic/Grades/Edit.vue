@@ -29,6 +29,7 @@ const reportOptionsCatalog = ref<Record<string, Record<string, any[]>>>({});
 const reportSettingsForm = useForm({
     destrezas_planificadas: 0,
     destrezas_logradas: 0,
+    factores: [] as number[],
     causas: [] as number[],
     medidas: [] as number[],
     recomendaciones: [] as number[],
@@ -48,6 +49,7 @@ const openReportSettingsModal = async () => {
         reportOptionsCatalog.value = data.options;
         reportSettingsForm.destrezas_planificadas = data.setting.destrezas_planificadas;
         reportSettingsForm.destrezas_logradas = data.setting.destrezas_logradas;
+        reportSettingsForm.factores = data.setting.factores || [];
         reportSettingsForm.causas = data.setting.causas || [];
         reportSettingsForm.medidas = data.setting.medidas || [];
         reportSettingsForm.recomendaciones = data.setting.recomendaciones || [];
@@ -1203,6 +1205,20 @@ const overallStatus = computed(() => {
                         <div>
                             <label class="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">Destrezas Logradas</label>
                             <input type="number" v-model="reportSettingsForm.destrezas_logradas" class="w-full rounded-lg border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 focus:border-purple-500 focus:ring-purple-500">
+                        </div>
+                    </div>
+
+                    <!-- Factores -->
+                    <div>
+                        <h4 class="text-sm font-black text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-100 pb-2">FACTORES QUE NO PERMITIERON EL 100% DE DESARROLLO DE DESTREZAS</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="(options, category) in reportOptionsCatalog.factor" :key="category" class="space-y-2">
+                                <h5 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-2">{{ category }}</h5>
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="reportSettingsForm.factores" class="mt-0.5 rounded border-zinc-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 

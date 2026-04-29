@@ -7,11 +7,69 @@ import parentsRoute from '@/routes/parents';
 import students from '@/routes/students';
 import teachers from '@/routes/teachers';
 import type { Team } from '@/types';
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
 
 const props = defineProps<{
     currentTeam?: Team | null;
     academic: any;
 }>();
+
+const isBoardSettingsModalOpen = ref(false);
+const isBoardSettingsSaving = ref(false);
+const activeBoardCourse = ref<any>(null);
+const activeBoardTrimestre = ref<string>('');
+const boardOptionsCatalog = ref<any>({});
+
+const boardSettingsForm = useForm({
+    nee_students: '',
+    dece_options: [] as number[],
+    behavior_options: [] as number[],
+    resolution_options: [] as number[],
+});
+
+const openBoardSettingsModal = async (course: any, trimestre: string) => {
+    activeBoardCourse.value = course;
+    activeBoardTrimestre.value = trimestre;
+    isBoardSettingsModalOpen.value = true;
+    boardOptionsCatalog.value = {};
+
+    try {
+        const response = await fetch(`/teachers/courses/${course.id}/board-settings/${trimestre}`);
+        const data = await response.json();
+        
+        boardOptionsCatalog.value = data.options;
+        boardSettingsForm.nee_students = data.setting.nee_students || '';
+        boardSettingsForm.dece_options = data.setting.dece_options || [];
+        boardSettingsForm.behavior_options = data.setting.behavior_options || [];
+        boardSettingsForm.resolution_options = data.setting.resolution_options || [];
+    } catch (error) {
+        console.error('Error fetching board settings', error);
+    }
+};
+
+const saveBoardSettings = async () => {
+    if (!activeBoardCourse.value) return;
+    
+    isBoardSettingsSaving.value = true;
+    try {
+        await fetch(`/teachers/courses/${activeBoardCourse.value.id}/board-settings/${activeBoardTrimestre.value}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify(boardSettingsForm.data())
+        });
+        
+        window.open(`/teachers/courses/${activeBoardCourse.value.id}/board-pdf/${activeBoardTrimestre.value}`, '_blank');
+        isBoardSettingsModalOpen.value = false;
+    } catch (error) {
+        console.error('Error saving board settings', error);
+    } finally {
+        isBoardSettingsSaving.value = false;
+    }
+};
 
 defineOptions({
     layout: (props: { currentTeam?: Team | null; academic: any }) => ({
@@ -184,44 +242,72 @@ defineOptions({
         </div>
 
         <!-- Dashboard para Profesor -->
-        <div v-if="academic.role === 'profesor'" class="space-y-6">
-            <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                    Mis Materias Asignadas
-                </h2>
-                <span
-                    class="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-600 uppercase dark:bg-blue-900/30 dark:text-blue-400"
-                    >Docente</span
-                >
+        <div v-if="academic.role === 'profesor'" class="space-y-12">
+            <!-- Cursos Tutorizados -->
+            <div v-if="academic.tutored_courses && academic.tutored_courses.length > 0" class="space-y-6">
+                <div class="flex items-center justify-between border-b border-zinc-200 pb-4 dark:border-zinc-800">
+                    <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        Cursos a mi cargo (Tutor)
+                    </h2>
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-600 uppercase dark:bg-amber-900/30 dark:text-amber-400">
+                        Tutor
+                    </span>
+                </div>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div v-for="course in academic.tutored_courses" :key="'tutor-'+course.id" class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-zinc-50 p-6 shadow-sm transition hover:border-amber-500/50 dark:border-zinc-800 dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-800">
+                        <div class="absolute top-0 right-0 -mt-8 -mr-8 h-32 w-32 rounded-full bg-amber-500/5 transition group-hover:bg-amber-500/10"></div>
+                        <h3 class="text-xl font-black text-zinc-900 dark:text-zinc-100">{{ course.name }}</h3>
+                        <p class="mt-1 text-xs tracking-tighter text-amber-600 font-bold uppercase">{{ course.level }}</p>
+                        
+                        <div class="mt-6 space-y-2 relative z-10">
+                            <p class="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-3 uppercase tracking-wider">Actas Junta de Curso</p>
+                            <button @click="openBoardSettingsModal(course, 't1')" class="w-full flex justify-between items-center px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-medium hover:border-amber-500 hover:text-amber-600 transition-colors">
+                                <span>1er Trimestre</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </button>
+                            <button @click="openBoardSettingsModal(course, 't2')" class="w-full flex justify-between items-center px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-medium hover:border-amber-500 hover:text-amber-600 transition-colors">
+                                <span>2do Trimestre</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </button>
+                            <button @click="openBoardSettingsModal(course, 't3')" class="w-full flex justify-between items-center px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-medium hover:border-amber-500 hover:text-amber-600 transition-colors">
+                                <span>3er Trimestre</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div
-                    v-for="asig in academic.assigned_subjects"
-                    :key="asig.id"
-                    class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:border-blue-500/50 dark:border-zinc-800 dark:bg-zinc-900"
-                >
+
+            <!-- Materias Asignadas -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between border-b border-zinc-200 pb-4 dark:border-zinc-800">
+                    <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+                        Mis Materias Asignadas
+                    </h2>
+                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-600 uppercase dark:bg-blue-900/30 dark:text-blue-400">
+                        Docente
+                    </span>
+                </div>
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <div
-                        class="absolute top-0 right-0 -mt-8 -mr-8 h-32 w-32 rounded-full bg-blue-500/5 transition group-hover:bg-blue-500/10"
-                    ></div>
-                    <h3
-                        class="text-xl font-bold text-zinc-900 dark:text-zinc-100"
+                        v-for="asig in academic.assigned_subjects"
+                        :key="asig.id"
+                        class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:border-blue-500/50 dark:border-zinc-800 dark:bg-zinc-900"
                     >
-                        {{ asig.subject.name }}
-                    </h3>
-                    <p class="mt-1 text-zinc-500">{{ asig.course.name }}</p>
-                    <p
-                        class="mt-2 text-xs tracking-tighter text-zinc-400 uppercase"
-                    >
-                        {{ asig.course.level }}
-                    </p>
-                    <Link
-                        :href="
-                            teachers.grades.edit.url({ courseSubject: asig.id })
-                        "
-                        class="mt-6 inline-block w-full rounded-xl bg-zinc-900 py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
-                    >
-                        Subir Calificaciones
-                    </Link>
+                        <div class="absolute top-0 right-0 -mt-8 -mr-8 h-32 w-32 rounded-full bg-blue-500/5 transition group-hover:bg-blue-500/10"></div>
+                        <h3 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">{{ asig.subject.name }}</h3>
+                        <p class="mt-1 text-zinc-500">{{ asig.course.name }}</p>
+                        <p class="mt-2 text-xs tracking-tighter text-zinc-400 uppercase">{{ asig.course.level }}</p>
+                        <Link
+                            :href="teachers.grades.edit.url({ courseSubject: asig.id })"
+                            class="mt-6 inline-block w-full rounded-xl bg-zinc-900 py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90 dark:bg-zinc-100 dark:text-zinc-900"
+                        >
+                            Subir Calificaciones
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
@@ -615,6 +701,82 @@ defineOptions({
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal para Acta de Junta de Curso -->
+        <div v-if="isBoardSettingsModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                <div class="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-800/50 rounded-t-2xl">
+                    <div>
+                        <h3 class="text-lg font-bold text-zinc-800 dark:text-zinc-200">Ajustes Acta Junta de Curso</h3>
+                        <p class="text-xs text-zinc-500 uppercase font-bold tracking-wider">{{ activeBoardCourse?.name }} - Trimestre {{ activeBoardTrimestre.replace('t','') }}</p>
+                    </div>
+                    <button @click="isBoardSettingsModalOpen = false" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-8">
+                    <!-- NEE -->
+                    <div>
+                        <h4 class="text-sm font-black text-indigo-600 uppercase tracking-wider mb-4 border-b border-indigo-100 pb-2">Análisis de estudiantes con NEE</h4>
+                        <textarea v-model="boardSettingsForm.nee_students" rows="3" placeholder="Detalle el análisis de estudiantes con Necesidades Educativas Específicas..." class="w-full rounded-lg border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 focus:border-indigo-500 focus:ring-indigo-500 text-sm"></textarea>
+                    </div>
+
+                    <!-- DECE -->
+                    <div>
+                        <h4 class="text-sm font-black text-sky-600 uppercase tracking-wider mb-4 border-b border-sky-100 pb-2">Informe del DECE</h4>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div v-for="(options, category) in boardOptionsCatalog.dece" :key="category" class="space-y-2">
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="boardSettingsForm.dece_options" class="mt-1 rounded border-zinc-300 text-sky-600 focus:ring-sky-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comportamiento -->
+                    <div>
+                        <h4 class="text-sm font-black text-emerald-600 uppercase tracking-wider mb-4 border-b border-emerald-100 pb-2">Análisis del Comportamiento Estudiantil</h4>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div v-for="(options, category) in boardOptionsCatalog.comportamiento" :key="category" class="space-y-2">
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="boardSettingsForm.behavior_options" class="mt-1 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resoluciones -->
+                    <div>
+                        <h4 class="text-sm font-black text-rose-600 uppercase tracking-wider mb-4 border-b border-rose-100 pb-2">Resoluciones</h4>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div v-for="(options, category) in boardOptionsCatalog.resolucion" :key="category" class="space-y-2">
+                                <label v-for="option in options" :key="option.id" class="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 cursor-pointer">
+                                    <input type="checkbox" :value="option.id" v-model="boardSettingsForm.resolution_options" class="mt-1 rounded border-zinc-300 text-rose-600 focus:ring-rose-500">
+                                    <span class="leading-snug">{{ option.description }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-b-2xl">
+                    <button @click="isBoardSettingsModalOpen = false" type="button" class="px-4 py-2 text-sm font-bold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                        Cancelar
+                    </button>
+                    <button @click="saveBoardSettings" :disabled="isBoardSettingsSaving" type="button" class="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                        <svg v-if="isBoardSettingsSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Guardar y Generar PDF
+                    </button>
                 </div>
             </div>
         </div>

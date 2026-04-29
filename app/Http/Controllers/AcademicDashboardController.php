@@ -26,6 +26,7 @@ class AcademicDashboardController extends Controller
         } elseif ($user->hasRole(RoleEnum::Profesor->value)) {
             $data['role'] = 'profesor';
             $data['assigned_subjects'] = $user->assignedSubjects()->with(['course', 'subject'])->get();
+            $data['tutored_courses'] = Course::where('tutor_id', $user->id)->get();
         } elseif ($user->hasRole(RoleEnum::Estudiante->value)) {
             $data['role'] = 'estudiante';
             $data['enrollments'] = $user->enrollments()->with(['course'])->get();

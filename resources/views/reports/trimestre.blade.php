@@ -160,8 +160,8 @@
         </tr>
         <tr>
             <td colspan="2" class="text-center text-bold">
-                @if(count($causasTextos) > 0)
-                    {{ implode(', ', $causasTextos) }}
+                @if(count($factoresTextos) > 0)
+                    {{ implode(', ', $factoresTextos) }}
                 @else
                     Actividades institucionales por lo general los días que se tiene con el curso
                 @endif

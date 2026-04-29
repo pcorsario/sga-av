@@ -12,7 +12,7 @@ class ReportSettingController extends Controller
     public function show(CourseSubject $courseSubject, string $trimestre)
     {
         $options = ReportOption::all()->groupBy(['type', 'category']);
-        
+
         $setting = ReportSetting::firstOrCreate(
             [
                 'course_subject_id' => $courseSubject->id,
@@ -21,6 +21,7 @@ class ReportSettingController extends Controller
             [
                 'destrezas_planificadas' => 0,
                 'destrezas_logradas' => 0,
+                'factores' => ReportOption::where('type', 'factor')->where('is_default', true)->pluck('id')->toArray(),
                 'causas' => ReportOption::where('type', 'causa')->where('is_default', true)->pluck('id')->toArray(),
                 'medidas' => ReportOption::where('type', 'medida')->where('is_default', true)->pluck('id')->toArray(),
                 'recomendaciones' => ReportOption::where('type', 'recomendacion')->where('is_default', true)->pluck('id')->toArray(),
@@ -38,6 +39,7 @@ class ReportSettingController extends Controller
         $validated = $request->validate([
             'destrezas_planificadas' => 'required|integer|min:0',
             'destrezas_logradas' => 'required|integer|min:0',
+            'factores' => 'nullable|array',
             'causas' => 'nullable|array',
             'medidas' => 'nullable|array',
             'recomendaciones' => 'nullable|array',

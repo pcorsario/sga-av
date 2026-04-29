@@ -9,6 +9,8 @@ use App\Models\CourseSubject;
 use App\Models\DCD;
 use App\Models\Grade;
 use App\Models\InsumoName;
+use App\Models\ReportOption;
+use App\Models\ReportSetting;
 use App\Models\StudentDcd;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -236,10 +238,10 @@ class GradeController extends Controller
         $keys = array_keys($sortedStatus);
         $faseMayoritaria = $keys[0] === 'EN PROCESO' ? 'PROCESO' : $keys[0];
         $porcentajeMayor = $totalEvaluados > 0 ? round(($sortedStatus[$keys[0]] / $totalEvaluados) * 100, 1) : 0;
-        
+
         $faseSecundaria = $keys[1] === 'EN PROCESO' ? 'PROCESO' : $keys[1];
         $porcentajeSecundario = $totalEvaluados > 0 ? round(($sortedStatus[$keys[1]] / $totalEvaluados) * 100, 1) : 0;
-        
+
         $materiaNombre = strtolower($courseSubject->subject->name);
 
         if ($faseMayoritaria === 'LOGRADO') {
@@ -369,13 +371,13 @@ class GradeController extends Controller
 
             // Flags para la tabla (SIN EXAMEN SE, SIN CALIFICACION SC)
             $sin_calificacion = $grade === null || ($promInd == 0 && $promGrp == 0 && $notaProyecto === null && $notaEvaluacion === null);
-            $sin_examen = !$sin_calificacion && $notaEvaluacion === null;
+            $sin_examen = ! $sin_calificacion && $notaEvaluacion === null;
 
-            if (!$sin_calificacion) {
+            if (! $sin_calificacion) {
                 $stats[$escala]['count']++;
                 $stats['total']++;
                 $sumMedias += $promedioParcial;
-                
+
                 if ($promedioParcial >= 7) {
                     $stats['mayor_7']++;
                 } else {
@@ -407,7 +409,7 @@ class GradeController extends Controller
         ];
 
         // Cargar Ajustes del Acta (Destrezas, Causas, Medidas, Recomendaciones)
-        $reportSetting = \App\Models\ReportSetting::where('course_subject_id', $courseSubject->id)
+        $reportSetting = ReportSetting::where('course_subject_id', $courseSubject->id)
             ->where('trimestre', $trimestre)
             ->first();
 
@@ -416,13 +418,15 @@ class GradeController extends Controller
         $porcentajeDestrezas = $destrezasPlanificadas > 0 ? round(($destrezasLogradas / $destrezasPlanificadas) * 100) : 0;
 
         // Obtener textos de opciones si existen, de lo contrario los predeterminados
-        $causasIds = $reportSetting && $reportSetting->causas ? $reportSetting->causas : \App\Models\ReportOption::where('type', 'causa')->where('is_default', true)->pluck('id')->toArray();
-        $medidasIds = $reportSetting && $reportSetting->medidas ? $reportSetting->medidas : \App\Models\ReportOption::where('type', 'medida')->where('is_default', true)->pluck('id')->toArray();
-        $recomendacionesIds = $reportSetting && $reportSetting->recomendaciones ? $reportSetting->recomendaciones : \App\Models\ReportOption::where('type', 'recomendacion')->where('is_default', true)->pluck('id')->toArray();
+        $factoresIds = $reportSetting && $reportSetting->factores ? $reportSetting->factores : ReportOption::where('type', 'factor')->where('is_default', true)->pluck('id')->toArray();
+        $causasIds = $reportSetting && $reportSetting->causas ? $reportSetting->causas : ReportOption::where('type', 'causa')->where('is_default', true)->pluck('id')->toArray();
+        $medidasIds = $reportSetting && $reportSetting->medidas ? $reportSetting->medidas : ReportOption::where('type', 'medida')->where('is_default', true)->pluck('id')->toArray();
+        $recomendacionesIds = $reportSetting && $reportSetting->recomendaciones ? $reportSetting->recomendaciones : ReportOption::where('type', 'recomendacion')->where('is_default', true)->pluck('id')->toArray();
 
-        $causasTextos = \App\Models\ReportOption::whereIn('id', $causasIds)->pluck('description')->toArray();
-        $medidasTextos = \App\Models\ReportOption::whereIn('id', $medidasIds)->pluck('description')->toArray();
-        $recomendacionesTextos = \App\Models\ReportOption::whereIn('id', $recomendacionesIds)->pluck('description')->toArray();
+        $factoresTextos = ReportOption::whereIn('id', $factoresIds)->pluck('description')->toArray();
+        $causasTextos = ReportOption::whereIn('id', $causasIds)->pluck('description')->toArray();
+        $medidasTextos = ReportOption::whereIn('id', $medidasIds)->pluck('description')->toArray();
+        $recomendacionesTextos = ReportOption::whereIn('id', $recomendacionesIds)->pluck('description')->toArray();
 
         $pdf = Pdf::loadView('reports.trimestre', [
             'courseSubject' => $courseSubject,
@@ -434,6 +438,7 @@ class GradeController extends Controller
             'destrezasPlanificadas' => $destrezasPlanificadas,
             'destrezasLogradas' => $destrezasLogradas,
             'porcentajeDestrezas' => $porcentajeDestrezas,
+            'factoresTextos' => $factoresTextos,
             'causasTextos' => $causasTextos,
             'medidasTextos' => $medidasTextos,
             'recomendacionesTextos' => $recomendacionesTextos,

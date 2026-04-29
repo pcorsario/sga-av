@@ -11,6 +11,7 @@ class ReportSetting extends Model
         'trimestre',
         'destrezas_planificadas',
         'destrezas_logradas',
+        'factores',
         'causas',
         'medidas',
         'recomendaciones',
@@ -19,6 +20,7 @@ class ReportSetting extends Model
     protected $casts = [
         'destrezas_planificadas' => 'integer',
         'destrezas_logradas' => 'integer',
+        'factores' => 'array',
         'causas' => 'array',
         'medidas' => 'array',
         'recomendaciones' => 'array',
@@ -27,4 +29,5 @@ class ReportSetting extends Model
     public function courseSubject()
     {
         return $this->belongsTo(CourseSubject::class);
-    }}
+    }
+}
