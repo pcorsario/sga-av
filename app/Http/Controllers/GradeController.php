@@ -267,7 +267,7 @@ class GradeController extends Controller
             'analisisTexto' => $analisisTexto,
         ])->setPaper('a4', 'portrait');
 
-        return $pdf->download("Reporte_Diagnostico_{$courseSubject->subject->name}.pdf");
+        return $pdf->stream("Reporte_Diagnostico_{$courseSubject->subject->name}.pdf");
     }
 
     protected function calculateStatus($count): array
@@ -444,7 +444,7 @@ class GradeController extends Controller
             'recomendacionesTextos' => $recomendacionesTextos,
         ])->setPaper('a4', 'portrait');
 
-        return $pdf->download("Reporte_{$trimestre}_{$courseSubject->subject->name}.pdf");
+        return $pdf->stream("Reporte_{$trimestre}_{$courseSubject->subject->name}.pdf");
     }
 
     public function exportExcel(Request $request)
