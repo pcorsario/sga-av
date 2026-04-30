@@ -44,6 +44,19 @@ defineOptions({
             </div>
 
             <div class="grid gap-2">
+                <Label for="cedula">Cédula</Label>
+                <Input
+                    id="cedula"
+                    type="text"
+                    required
+                    :tabindex="2"
+                    name="cedula"
+                    placeholder="1712345678"
+                />
+                <InputError :message="errors.cedula" />
+            </div>
+
+            <div class="grid gap-2">
                 <Label for="email">Email address</Label>
                 <Input
                     id="email"

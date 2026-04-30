@@ -46,18 +46,18 @@ defineProps<{
             <!-- Correo -->
             <div class="grid gap-2">
                 <Label for="email" class="text-sm font-medium text-white">
-                    Correo electrónico
+                    Cédula o Correo electrónico
                 </Label>
 
                 <Input
                     id="email"
-                    type="email"
+                    type="text"
                     name="email"
                     required
                     autofocus
                     :tabindex="1"
                     autocomplete="email"
-                    placeholder="nombre@institucion.edu.ec"
+                    placeholder="1712345678 o nombre@institucion.edu.ec"
                     class="h-11 rounded-xl border-white/25 bg-white/10 text-white placeholder:text-white/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30"
                 />
 

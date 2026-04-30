@@ -48,6 +48,18 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+        
+        Fortify::authenticateUsing(function (Request $request) {
+            $login = $request->input(Fortify::username());
+
+            $user = \App\Models\User::where('email', $login)
+                ->orWhere('cedula', $login)
+                ->first();
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+        });
     }
 
     /**

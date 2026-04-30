@@ -13,6 +13,7 @@ const props = defineProps<{
 const form = useForm({
     name: '',
     email: '',
+    cedula: '',
     password: '',
     password_confirmation: '',
     course_id: '',
@@ -134,6 +135,27 @@ defineOptions({
                         >
                             Datos Personales
                         </h3>
+                           <div>
+                            <label
+                                for="cedula"
+                                class="mb-2 block text-sm font-bold text-zinc-900 dark:text-zinc-100"
+                                >Cédula</label
+                            >
+                            <input
+                                id="cedula"
+                                v-model="form.cedula"
+                                type="text"
+                                required
+                                class="w-full rounded-xl border-zinc-300 bg-white px-4 py-3 shadow-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
+                                :class="{ 'border-red-500': form.errors.cedula }"
+                            />
+                            <p
+                                v-if="form.errors.cedula"
+                                class="mt-2 text-xs font-bold text-red-500"
+                            >
+                                {{ form.errors.cedula }}
+                            </p>
+                        </div>
                         <div>
                             <label
                                 for="name"
@@ -155,6 +177,8 @@ defineOptions({
                                 {{ form.errors.name }}
                             </p>
                         </div>
+
+                     
 
                         <div>
                             <label
@@ -373,6 +397,14 @@ defineOptions({
                             Importar Excel
                         </button>
                     </div>
+                </div>
+
+                <div
+                    v-if="importForm.errors.file"
+                    class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400"
+                >
+                    <span class="font-bold">Error de importación:</span>
+                    {{ importForm.errors.file }}
                 </div>
             </div>
         </div>

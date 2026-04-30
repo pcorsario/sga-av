@@ -41,6 +41,13 @@ class TeacherController extends Controller
 
             return redirect()->route('teachers.index', ['current_team' => $current_team])
                 ->with('status', 'Nómina de profesores importada exitosamente.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $messages = [];
+            foreach ($failures as $failure) {
+                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+            return back()->withErrors(['file' => implode(' | ', $messages)]);
         } catch (\Exception $e) {
             return back()->withErrors(['file' => 'Error al importar el archivo: ' . $e->getMessage()]);
         }
@@ -87,12 +94,14 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:'.User::class,
+            'cedula' => 'required|string|size:10|unique:'.User::class,
             'password' => ['nullable', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $teacher = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'cedula' => $validated['cedula'],
             'password' => ! empty($validated['password']) ? Hash::make($validated['password']) : Hash::make(Str::random(12)),
         ]);
 
@@ -122,6 +131,7 @@ class TeacherController extends Controller
                 'id' => $teacher->id,
                 'name' => $teacher->name,
                 'email' => $teacher->email,
+                'cedula' => $teacher->cedula,
             ],
         ]);
     }
@@ -133,11 +143,13 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:'.User::class.',email,'.$teacher->id,
+            'cedula' => 'required|string|size:10|unique:'.User::class.',cedula,'.$teacher->id,
             'password' => ['nullable', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $teacher->name = $validated['name'];
         $teacher->email = $validated['email'];
+        $teacher->cedula = $validated['cedula'];
 
         if (! empty($validated['password'])) {
             $teacher->password = Hash::make($validated['password']);

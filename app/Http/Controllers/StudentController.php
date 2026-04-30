@@ -43,6 +43,13 @@ class StudentController extends Controller
 
             return redirect()->route('students.index', ['current_team' => $current_team])
                 ->with('status', 'Estudiantes matriculados exitosamente.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $messages = [];
+            foreach ($failures as $failure) {
+                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+            return back()->withErrors(['file' => implode(' | ', $messages)]);
         } catch (\Exception $e) {
             // Devolvemos un error amigable con el mensaje específico de la fila
             return back()->withErrors(['file' => $e->getMessage()]);
@@ -106,6 +113,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'cedula' => 'required|string|size:10|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'course_id' => 'required|exists:courses,id',
         ]);
@@ -116,6 +124,7 @@ class StudentController extends Controller
             $student = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'cedula' => $validated['cedula'],
                 'password' => Hash::make($validated['password']),
                 'current_team_id' => $team->id,
             ]);
@@ -163,6 +172,7 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$student->id,
+            'cedula' => 'required|string|size:10|unique:users,cedula,'.$student->id,
             'password' => 'nullable|string|min:8|confirmed',
             'course_id' => 'required|exists:courses,id',
         ]);
@@ -170,6 +180,7 @@ class StudentController extends Controller
         DB::transaction(function () use ($validated, $student) {
             $student->name = $validated['name'];
             $student->email = $validated['email'];
+            $student->cedula = $validated['cedula'];
 
             if (! empty($validated['password'])) {
                 $student->password = Hash::make($validated['password']);

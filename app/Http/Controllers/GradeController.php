@@ -37,6 +37,7 @@ class GradeController extends Controller
             ->whereHas('enrollments', function ($q) use ($courseSubject) {
                 $q->where('course_id', $courseSubject->course_id);
             })
+            ->orderBy('name')
             ->get();
 
         $students = $studentsCollection->map(function ($student) use ($courseSubject) {

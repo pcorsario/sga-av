@@ -13,6 +13,7 @@ const props = defineProps<{
 const form = useForm({
     name: props.student.name,
     email: props.student.email,
+    cedula: props.student.cedula,
     password: '',
     password_confirmation: '',
     course_id: props.student.enrollments?.[0]?.course_id ?? '',
@@ -153,6 +154,28 @@ defineOptions({
                             class="mt-2 text-xs font-bold text-red-500"
                         >
                             {{ form.errors.name }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label
+                            for="cedula"
+                            class="mb-2 block text-sm font-bold text-zinc-900 dark:text-zinc-100"
+                            >Cédula</label
+                        >
+                        <input
+                            id="cedula"
+                            v-model="form.cedula"
+                            type="text"
+                            required
+                            class="w-full rounded-xl border-zinc-300 bg-white px-4 py-3 shadow-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800"
+                            :class="{ 'border-red-500': form.errors.cedula }"
+                        />
+                        <p
+                            v-if="form.errors.cedula"
+                            class="mt-2 text-xs font-bold text-red-500"
+                        >
+                            {{ form.errors.cedula }}
                         </p>
                     </div>
 

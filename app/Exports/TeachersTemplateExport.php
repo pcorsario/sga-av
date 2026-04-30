@@ -13,8 +13,8 @@ class TeachersTemplateExport implements FromArray, WithHeadings
     public function array(): array
     {
         return [
-            ['Diego Armijos', 'diego.armijos@institucion.edu.ec', 'password123'],
-            ['Elena Valarezo', 'elena.valarezo@institucion.edu.ec', 'profesor2024'],
+            ['Diego Armijos', 'diego.armijos@institucion.edu.ec', '1102345678', 'password123'],
+            ['Elena Valarezo', 'elena.valarezo@institucion.edu.ec', '1108765432', 'profesor2024'],
         ];
     }
 
@@ -26,6 +26,7 @@ class TeachersTemplateExport implements FromArray, WithHeadings
         return [
             'Nombres y Apellidos',
             'Correo Institucional',
+            'Cédula',
             'Contraseña',
         ];
     }

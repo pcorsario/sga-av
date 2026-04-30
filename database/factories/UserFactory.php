@@ -29,6 +29,7 @@ class UserFactory extends Factory
         return [
             'name' => 'User '.Str::upper(Str::random(6)),
             'email' => Str::lower(Str::random(12)).'@example.test',
+            'cedula' => (string) fake()->numerify('##########'),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
