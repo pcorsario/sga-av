@@ -169,11 +169,27 @@ class CourseController extends Controller
         // we pluck subject_ids the course already has via its courseSubjects pivot model
         $courseSubjectIds = $course->courseSubjects()->pluck('subject_id')->toArray();
 
+        // Get all courses with their subject IDs for the cloning feature
+        $otherCourses = Course::where('id', '!=', $course->id)
+            ->with('courseSubjects')
+            ->orderBy('level')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($c) {
+                return [
+                    'id' => $c->id,
+                    'name' => $c->name,
+                    'level' => $c->level,
+                    'subject_ids' => $c->courseSubjects->pluck('subject_id')->toArray(),
+                ];
+            });
+
         // Let's pass the subjects list to the frontend, along with what is checked
         return Inertia::render('Academic/Courses/Subjects', [
             'course' => $course,
             'allSubjects' => $allSubjects,
             'assignedIds' => $courseSubjectIds,
+            'otherCourses' => $otherCourses,
         ]);
     }
 

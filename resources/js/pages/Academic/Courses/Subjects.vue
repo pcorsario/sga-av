@@ -15,6 +15,7 @@ const props = defineProps<{
     };
     allSubjects: { id: number; name: string }[];
     assignedIds: number[];
+    otherCourses: { id: number; name: string; level: string; subject_ids: number[] }[];
 }>();
 
 const form = useForm({
@@ -22,6 +23,15 @@ const form = useForm({
 });
 
 const search = ref('');
+const selectedCourseToCopy = ref<number | null>(null);
+
+const copyFromCourse = () => {
+    if (!selectedCourseToCopy.value) return;
+    const course = props.otherCourses.find(c => c.id === selectedCourseToCopy.value);
+    if (course) {
+        form.subjects = [...course.subject_ids];
+    }
+};
 
 const filteredSubjects = computed(() => {
     if (!search.value) {
@@ -105,7 +115,7 @@ defineOptions({
                         currentTeam
                             ? coursesRoutes.index.url({
                                   current_team: currentTeam.slug,
-                              })
+                               })
                             : '#'
                     "
                     class="flex-shrink-0 rounded-full border border-zinc-200 p-2 text-zinc-500 transition hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-800"
@@ -138,19 +148,43 @@ defineOptions({
                     </p>
                 </div>
             </div>
+
             <div class="flex flex-wrap items-center gap-3">
-                <!-- Buscador Local -->
-                <div class="relative w-full sm:w-auto">
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Buscar..."
-                        class="w-full rounded-full border-zinc-200 bg-white py-2 pr-10 pl-4 text-xs font-medium shadow-sm transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 sm:w-48"
-                    />
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                <div class="relative w-full sm:w-auto flex items-center gap-2">
+                    <!-- Selector de Curso para Copiar -->
+                    <select
+                        v-model="selectedCourseToCopy"
+                        class="rounded-xl border-zinc-200 bg-white py-2 pl-3 pr-8 text-xs font-bold text-zinc-600 shadow-sm transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400"
+                    >
+                        <option :value="null" disabled>Copiar de...</option>
+                        <option v-for="c in otherCourses" :key="c.id" :value="c.id">
+                            {{ c.name }} ({{ c.level }})
+                        </option>
+                    </select>
+                    <button
+                        type="button"
+                        @click="copyFromCourse"
+                        :disabled="!selectedCourseToCopy"
+                        class="flex h-9 items-center justify-center rounded-xl bg-blue-100 px-3 text-xs font-black text-blue-700 transition hover:bg-blue-200 disabled:opacity-50 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                        title="Copiar materias de este curso"
+                    >
+                        Copiar
+                    </button>
+                    
+                    <div class="h-6 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
+
+                    <div class="relative flex-1 sm:w-48">
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Buscar..."
+                            class="w-full rounded-full border-zinc-200 bg-white py-2 pr-10 pl-4 text-xs font-medium shadow-sm transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                        />
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
 
@@ -255,7 +289,7 @@ defineOptions({
                         currentTeam
                             ? coursesRoutes.index.url({
                                   current_team: currentTeam.slug,
-                              })
+                               })
                             : '#'
                     "
                     class="px-6 py-3 font-bold text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
