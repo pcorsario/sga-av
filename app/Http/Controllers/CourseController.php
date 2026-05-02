@@ -55,10 +55,25 @@ class CourseController extends Controller
             abort(403, 'No autorizado.');
         }
 
-        $courses = Course::with(['subjects', 'tutor'])->orderBy('level')->orderBy('name')->get();
+        $search = $request->input('search');
+
+        $courses = Course::with(['subjects', 'tutor'])
+            ->when($search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('level', 'like', "%{$search}%")
+                      ->orWhereHas('tutor', function($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%");
+                      });
+                });
+            })
+            ->orderBy('level')
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('Academic/Courses/Index', [
             'courses' => $courses,
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -110,14 +125,40 @@ class CourseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request, string $current_team, Course $course)
     {
-        //
+        if (! $request->user()->hasRole(RoleEnum::Autoridad->value)) {
+            abort(403, 'No autorizado.');
+        }
+
+        $teachers = User::role(RoleEnum::Profesor->value)->orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('Academic/Courses/Edit', [
+            'course' => $course,
+            'teachers' => $teachers,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
+    public function update(Request $request, string $current_team, Course $course)
+    {
+        if (! $request->user()->hasRole(RoleEnum::Autoridad->value)) {
+            abort(403, 'No autorizado.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'level' => 'required|string|max:255',
+            'tutor_id' => 'nullable|exists:users,id',
+        ]);
+
+        $course->update($validated);
+
+        return redirect()->route('courses.index', ['current_team' => $current_team])
+            ->with('status', 'Curso actualizado exitosamente.');
+    }
     public function subjects(Request $request, string $current_team, Course $course)
     {
         if (! $request->user()->hasRole(RoleEnum::Autoridad->value)) {
