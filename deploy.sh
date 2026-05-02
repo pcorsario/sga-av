@@ -92,6 +92,9 @@ $PHP_BIN artisan optimize:clear
 echo "🗄️ Ejecutando migraciones..."
 $PHP_BIN artisan migrate --force
 
+echo "🌱 Cargando destrezas iniciales..."
+$PHP_BIN artisan db:seed --class=InitialGradesSeeder --force
+
 echo "🛣️ Generando rutas/types para frontend..."
 $PHP_BIN artisan wayfinder:generate --with-form
 
