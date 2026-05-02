@@ -27,8 +27,23 @@ class GradeController extends Controller
 
         $user = $request->user();
 
+        $courseSubject->load(['course', 'subject']);
+
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
             abort(403, 'No tienes permiso para gestionar estas notas.');
+        }
+
+        $level = strtoupper($courseSubject->course->level);
+        $courseName = strtoupper($courseSubject->course->name);
+
+        if (
+            str_contains($level, 'INICIAL') || 
+            str_contains($level, 'PREPARATORIA') || 
+            str_starts_with($courseName, '1ERO EGB') || 
+            str_starts_with($courseName, 'INICIAL') ||
+            str_contains($courseName, 'PREPARATORIA')
+        ) {
+            return app()->make(QualitativeGradeController::class)->edit($request, $courseSubject);
         }
 
         $courseSubject->load(['course', 'subject']);
@@ -499,8 +514,15 @@ class GradeController extends Controller
 
         $user = $request->user();
 
+        $courseSubject->load(['course', 'subject']);
+
         if (! $user->hasRole(RoleEnum::Autoridad->value) && $courseSubject->teacher_id !== $user->id) {
             abort(403);
+        }
+
+        $level = strtoupper($courseSubject->course->level);
+        if ($level === 'INICIAL' || $level === 'PREPARATORIA' || str_starts_with($courseSubject->course->name, '1ERO EGB') || str_starts_with($courseSubject->course->name, 'INICIAL')) {
+            return app()->make(QualitativeGradeController::class)->store($request, $courseSubject);
         }
 
         $validated = $request->validate([

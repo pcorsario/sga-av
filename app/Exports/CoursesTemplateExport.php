@@ -8,9 +8,6 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class CoursesTemplateExport implements FromArray, WithHeadings, WithTitle
 {
-    /**
-     * @return array
-     */
     public function array(): array
     {
         return [
@@ -21,9 +18,6 @@ class CoursesTemplateExport implements FromArray, WithHeadings, WithTitle
         ];
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
@@ -32,9 +26,6 @@ class CoursesTemplateExport implements FromArray, WithHeadings, WithTitle
         ];
     }
 
-    /**
-     * @return string
-     */
     public function title(): string
     {
         return 'Plantilla de Cursos';

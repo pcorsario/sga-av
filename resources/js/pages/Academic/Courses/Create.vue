@@ -163,6 +163,12 @@ defineOptions({
                                 class="w-full rounded-xl border-zinc-300 bg-white px-4 py-3 text-zinc-900 shadow-sm transition focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
                                 :class="{ 'border-red-500': form.errors.level }"
                             >
+                                <option value="Inicial">
+                                    Inicial
+                                </option>
+                                <option value="Preparatoria">
+                                    Preparatoria
+                                </option>
                                 <option value="Básica Elemental">
                                     Básica Elemental
                                 </option>

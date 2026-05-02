@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
 use App\Exports\TeachersTemplateExport;
 use App\Imports\TeachersImport;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Enums\RoleEnum;
 use App\Models\CourseSubject;
 use App\Models\Team;
 use App\Models\User;
@@ -14,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class TeacherController extends Controller
 {
@@ -41,15 +42,16 @@ class TeacherController extends Controller
 
             return redirect()->route('teachers.index', ['current_team' => $current_team])
                 ->with('status', 'Nómina de profesores importada exitosamente.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $messages = [];
             foreach ($failures as $failure) {
-                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $messages[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
+
             return back()->withErrors(['file' => implode(' | ', $messages)]);
         } catch (\Exception $e) {
-            return back()->withErrors(['file' => 'Error al importar el archivo: ' . $e->getMessage()]);
+            return back()->withErrors(['file' => 'Error al importar el archivo: '.$e->getMessage()]);
         }
     }
 
@@ -66,7 +68,7 @@ class TeacherController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             })
             ->withCount('assignedSubjects')

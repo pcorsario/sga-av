@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Enums\RoleEnum;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -20,31 +21,31 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
         ]);
-        $admin->assignRole(\App\Enums\RoleEnum::Autoridad->value);
+        $admin->assignRole(RoleEnum::Autoridad->value);
 
         $teacher = User::factory()->create([
             'name' => 'Profesor User',
             'email' => 'profesor@example.com',
             'password' => bcrypt('password'),
         ]);
-        $teacher->assignRole(\App\Enums\RoleEnum::Profesor->value);
+        $teacher->assignRole(RoleEnum::Profesor->value);
 
         $parent = User::factory()->create([
             'name' => 'Padre User',
             'email' => 'padre@example.com',
             'password' => bcrypt('password'),
         ]);
-        $parent->assignRole(\App\Enums\RoleEnum::Padre->value);
+        $parent->assignRole(RoleEnum::Padre->value);
 
         $student = User::factory()->create([
             'name' => 'Estudiante User',
             'email' => 'estudiante@example.com',
             'password' => bcrypt('password'),
         ]);
-        $student->assignRole(\App\Enums\RoleEnum::Estudiante->value);
+        $student->assignRole(RoleEnum::Estudiante->value);
 
-//        $this->call(AcademicSeeder::class);
-  //      $this->call(EnrollmentSeeder::class);
-        
+        //        $this->call(AcademicSeeder::class);
+        //      $this->call(EnrollmentSeeder::class);
+
     }
 }

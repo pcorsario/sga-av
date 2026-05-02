@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseBoardController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ParentController;
+use App\Http\Controllers\QualitativeGradeController;
 use App\Http\Controllers\ReportSettingController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
@@ -47,6 +48,9 @@ Route::prefix('teachers')
         Route::get('grades/{courseSubject}/excel', [GradeController::class, 'exportExcel'])->name('teachers.grades.excel.export');
         Route::post('grades/{courseSubject}/excel', [GradeController::class, 'importExcel'])->name('teachers.grades.excel.import');
         Route::post('grades/{courseSubject}', [GradeController::class, 'update'])->name('teachers.grades.update');
+        Route::post('grades/{courseSubject}/selected-items', [QualitativeGradeController::class, 'updateSelectedItems'])->name('teachers.qualitative.selected-items');
+        Route::get('grades/{courseSubject}/qualitative-pdf', [QualitativeGradeController::class, 'exportPdf'])->name('teachers.qualitative.pdf');
+        Route::get('grades/{courseSubject}/qualitative-pdf/{quarter}', [QualitativeGradeController::class, 'exportTrimestrePdf'])->name('teachers.qualitative.trimestre.pdf');
 
         // Junta de Curso
         Route::get('courses/{course}/board-settings/{trimestre}', [CourseBoardController::class, 'showSettings'])->name('teachers.courses.board.settings.show');

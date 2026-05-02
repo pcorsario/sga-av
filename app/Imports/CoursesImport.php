@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Course;
+use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -10,14 +11,12 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 class CoursesImport implements ToModel, WithHeadingRow, WithValidation
 {
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @return Model|null
+     */
     public function model(array $row)
     {
         return new Course([
-            'name'  => $row['nombre_del_curso'],
+            'name' => $row['nombre_del_curso'],
             'level' => $row['nivel_de_educacion'],
         ]);
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoleEnum;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetTeamUrlDefaults;
@@ -28,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(function (Request $request) {
             $user = $request->user();
             if ($user) {
-                if ($user->hasRole(App\Enums\RoleEnum::Profesor->value)) {
+                if ($user->hasRole(RoleEnum::Profesor->value)) {
                     return route('teachers.dashboard');
                 }
                 if ($user->currentTeam) {

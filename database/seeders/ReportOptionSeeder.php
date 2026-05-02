@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ReportOption;
 use Illuminate\Database\Seeder;
 
 class ReportOptionSeeder extends Seeder
@@ -21,7 +21,7 @@ class ReportOptionSeeder extends Seeder
             ['type' => 'causa', 'category' => '🧠 Factores cognitivos', 'description' => 'Ritmo de aprendizaje más lento que el promedio.', 'is_default' => false],
             ['type' => 'causa', 'category' => '🧠 Factores cognitivos', 'description' => 'Problemas en habilidades básicas (lectura, escritura o cálculo).', 'is_default' => false],
             ['type' => 'causa', 'category' => '🧠 Factores cognitivos', 'description' => 'Posibles trastornos del aprendizaje (como dislexia o discalculia).', 'is_default' => false],
-            
+
             // CAUSAS - 💭 Factores emocionales y motivacionales
             ['type' => 'causa', 'category' => '💭 Factores emocionales y motivacionales', 'description' => 'Desinterés o falta de motivación por el estudio.', 'is_default' => false],
             ['type' => 'causa', 'category' => '💭 Factores emocionales y motivacionales', 'description' => 'Desinterés por el estudio.', 'is_default' => true],
@@ -29,7 +29,7 @@ class ReportOptionSeeder extends Seeder
             ['type' => 'causa', 'category' => '💭 Factores emocionales y motivacionales', 'description' => 'Ansiedad, estrés o presión excesiva.', 'is_default' => false],
             ['type' => 'causa', 'category' => '💭 Factores emocionales y motivacionales', 'description' => 'Desánimo o frustración constante.', 'is_default' => false],
             ['type' => 'causa', 'category' => '💭 Factores emocionales y motivacionales', 'description' => 'Falta de metas o propósito claro en los estudios.', 'is_default' => false],
-            
+
             // CAUSAS - 🏫 Factores escolares
             ['type' => 'causa', 'category' => '🏫 Factores escolares', 'description' => 'Problemas con los compañeros de clase.', 'is_default' => true],
             ['type' => 'causa', 'category' => '🏫 Factores escolares', 'description' => 'Problemas con los compañeros de clase (conflictos, bullying).', 'is_default' => false],
@@ -59,7 +59,6 @@ class ReportOptionSeeder extends Seeder
             ['type' => 'causa', 'category' => '🧩 Otros posibles factores', 'description' => 'Cambios recientes (mudanza, cambio de escuela).', 'is_default' => false],
             ['type' => 'causa', 'category' => '🧩 Otros posibles factores', 'description' => 'Falta de orientación académica o vocacional.', 'is_default' => false],
 
-
             // MEDIDAS ADOPTADAS
             ['type' => 'medida', 'category' => '📚 MEDIDAS ADOPTADAS POR EL/LA DOCENTE', 'description' => 'Organizar actividades individuales y grupales que fomenten la participación activa, el trabajo colaborativo y el intercambio de conocimientos entre los estudiantes.', 'is_default' => false],
             ['type' => 'medida', 'category' => '📚 MEDIDAS ADOPTADAS POR EL/LA DOCENTE', 'description' => 'Organizar actividades individuales y en grupo que requieran la colaboración y el intercambio de conocimientos entre estudiantes.', 'is_default' => true],
@@ -79,7 +78,6 @@ class ReportOptionSeeder extends Seeder
             ['type' => 'medida', 'category' => '✏️ Otras medidas complementarias recomendadas', 'description' => 'Promover hábitos de estudio y organización del tiempo.', 'is_default' => false],
             ['type' => 'medida', 'category' => '✏️ Otras medidas complementarias recomendadas', 'description' => 'Incentivar la participación mediante preguntas, dinámicas y actividades motivadoras.', 'is_default' => false],
             ['type' => 'medida', 'category' => '✏️ Otras medidas complementarias recomendadas', 'description' => 'Realizar seguimiento individual a estudiantes con mayores dificultades.', 'is_default' => false],
-
 
             // RECOMENDACIONES
             ['type' => 'recomendacion', 'category' => '📖 RECOMENDACIONES PARA PROMOVER EL APRENDIZAJE', 'description' => 'Fomentar la participación activa de los estudiantes en las actividades de clase, incentivando la formulación de preguntas, el análisis de ejemplos prácticos y la aplicación de los conocimientos adquiridos en diferentes contextos.', 'is_default' => false],
@@ -101,7 +99,7 @@ class ReportOptionSeeder extends Seeder
         ];
 
         foreach ($options as $option) {
-            \App\Models\ReportOption::create($option);
+            ReportOption::create($option);
         }
     }
 }

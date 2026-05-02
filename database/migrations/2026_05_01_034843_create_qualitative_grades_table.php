@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('qualitative_grades', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('course_id')->constrained('courses')->cascadeOnDelete();
+            $table->foreignId('evaluation_item_id')->constrained('evaluation_items')->cascadeOnDelete();
+
+            $table->decimal('q1_grade', 5, 2)->nullable();
+            $table->decimal('q2_grade', 5, 2)->nullable();
+            $table->decimal('q3_grade', 5, 2)->nullable();
+
+            $table->text('q1_observation')->nullable();
+            $table->text('q2_observation')->nullable();
+            $table->text('q3_observation')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('qualitative_grades');
+    }
+};

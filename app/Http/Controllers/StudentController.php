@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
 use App\Exports\StudentsTemplateExport;
 use App\Imports\StudentsImport;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Enums\RoleEnum;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Team;
@@ -14,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class StudentController extends Controller
 {
@@ -43,12 +44,13 @@ class StudentController extends Controller
 
             return redirect()->route('students.index', ['current_team' => $current_team])
                 ->with('status', 'Estudiantes matriculados exitosamente.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $messages = [];
             foreach ($failures as $failure) {
-                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $messages[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
+
             return back()->withErrors(['file' => implode(' | ', $messages)]);
         } catch (\Exception $e) {
             // Devolvemos un error amigable con el mensaje específico de la fila

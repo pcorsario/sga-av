@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Enums\RoleEnum;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -12,10 +14,10 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        foreach (\App\Enums\RoleEnum::cases() as $role) {
-            \Spatie\Permission\Models\Role::firstOrCreate(['name' => $role->value]);
+        foreach (RoleEnum::cases() as $role) {
+            Role::firstOrCreate(['name' => $role->value]);
         }
     }
 }

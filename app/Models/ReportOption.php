@@ -15,4 +15,5 @@ class ReportOption extends Model
 
     protected $casts = [
         'is_default' => 'boolean',
-    ];}
+    ];
+}

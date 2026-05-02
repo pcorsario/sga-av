@@ -2,11 +2,12 @@
 
 namespace App\Imports;
 
-use App\Models\User;
-use App\Models\Team;
 use App\Enums\RoleEnum;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Team;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -14,25 +15,21 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class TeachersImport implements ToModel, WithHeadingRow, WithValidation
 {
-    public function __construct(private string $currentTeamSlug)
-    {
-    }
+    public function __construct(private string $currentTeamSlug) {}
 
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @return Model|null
+     */
     public function model(array $row)
     {
         return DB::transaction(function () use ($row) {
             $team = Team::where('slug', $this->currentTeamSlug)->firstOrFail();
-            
+
             // 1. Crear el usuario (Identidad)
             $user = User::create([
-                'name'     => trim($row['nombres_y_apellidos']),
-                'email'    => trim($row['correo_institucional']),
-                'cedula'   => str_pad((string) trim($row['cedula']), 10, '0', STR_PAD_LEFT),
+                'name' => trim($row['nombres_y_apellidos']),
+                'email' => trim($row['correo_institucional']),
+                'cedula' => str_pad((string) trim($row['cedula']), 10, '0', STR_PAD_LEFT),
                 'password' => Hash::make($row['contrasena'] ?? Str::random(12)),
                 'current_team_id' => $team->id,
             ]);
@@ -63,8 +60,8 @@ class TeachersImport implements ToModel, WithHeadingRow, WithValidation
         return [
             'nombres_y_apellidos' => 'required|string|max:255',
             'correo_institucional' => 'required|email|unique:users,email',
-            'cedula'              => 'required|string|size:10|unique:users,cedula',
-            'contrasena'          => 'nullable|min:8',
+            'cedula' => 'required|string|size:10|unique:users,cedula',
+            'contrasena' => 'nullable|min:8',
         ];
     }
 
@@ -73,8 +70,8 @@ class TeachersImport implements ToModel, WithHeadingRow, WithValidation
         return [
             'nombres_y_apellidos' => 'Nombres y Apellidos',
             'correo_institucional' => 'Correo Institucional',
-            'cedula'              => 'Cédula',
-            'contrasena'          => 'Contraseña',
+            'cedula' => 'Cédula',
+            'contrasena' => 'Contraseña',
         ];
     }
 
@@ -82,8 +79,8 @@ class TeachersImport implements ToModel, WithHeadingRow, WithValidation
     {
         return [
             'cedula.required' => 'La cédula es obligatoria. (Asegúrese de usar la nueva plantilla de Excel que incluye la columna Cédula).',
-            'cedula.size'     => 'La cédula debe tener exactamente 10 dígitos.',
-            'cedula.unique'   => 'Esta cédula ya está registrada en el sistema.',
+            'cedula.size' => 'La cédula debe tener exactamente 10 dígitos.',
+            'cedula.unique' => 'Esta cédula ya está registrada en el sistema.',
             'correo_institucional.unique' => 'Este correo ya está registrado.',
         ];
     }

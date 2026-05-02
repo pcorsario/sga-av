@@ -29,6 +29,7 @@ rollback() {
 
   echo "🧹 Limpiando cachés..."
   $PHP_BIN artisan optimize:clear || true
+  $PHP_BIN artisan event:clear || true
 
   echo "📦 Restaurando dependencias PHP..."
   $COMPOSER_BIN install --no-dev --no-interaction --prefer-dist --optimize-autoloader || true
@@ -78,7 +79,7 @@ $PHP_BIN artisan down || true
 
 echo "📥 Actualizando código desde Git..."
 git fetch origin
-git checkout "$BRANCH"
+git reset --hard origin/"$BRANCH"
 git pull origin "$BRANCH"
 
 echo "📦 Instalando dependencias PHP..."
@@ -104,6 +105,12 @@ echo "⚡ Cacheando Laravel..."
 $PHP_BIN artisan config:cache
 $PHP_BIN artisan route:cache
 $PHP_BIN artisan view:cache
+$PHP_BIN artisan event:cache
+
+echo "🔐 Ajustando permisos..."
+chmod -R 775 storage bootstrap/cache
+find storage -type d -exec chmod 775 {} \;
+find storage -type f -exec chmod 664 {} \;
 
 echo "🔁 Reiniciando colas..."
 $PHP_BIN artisan queue:restart || true

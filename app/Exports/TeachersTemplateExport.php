@@ -7,9 +7,6 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class TeachersTemplateExport implements FromArray, WithHeadings
 {
-    /**
-     * @return array
-     */
     public function array(): array
     {
         return [
@@ -18,9 +15,6 @@ class TeachersTemplateExport implements FromArray, WithHeadings
         ];
     }
 
-    /**
-     * @return array
-     */
     public function headings(): array
     {
         return [
