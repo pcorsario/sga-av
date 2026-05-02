@@ -76,7 +76,11 @@ Route::prefix('{current_team}')
         // Malla Curricular (Cursos y Materias)
         Route::get('courses/export-template', [CourseController::class, 'exportTemplate'])->name('courses.export-template');
         Route::post('courses/import', [CourseController::class, 'importExcel'])->name('courses.import-excel');
-        Route::post('subjects', [SubjectController::class, 'store'])->name('subjects.store');
+        // Materias
+        Route::get('subjects/export-template', [SubjectController::class, 'exportTemplate'])->name('subjects.export-template');
+        Route::get('subjects/export', [SubjectController::class, 'exportExcel'])->name('subjects.export-excel');
+        Route::post('subjects/import', [SubjectController::class, 'importExcel'])->name('subjects.import-excel');
+        Route::resource('subjects', SubjectController::class);
         Route::get('courses/{course}/subjects', [CourseController::class, 'subjects'])->name('courses.subjects');
         Route::post('courses/{course}/subjects', [CourseController::class, 'updateSubjects'])->name('courses.subjects.update');
         Route::resource('courses', CourseController::class);
