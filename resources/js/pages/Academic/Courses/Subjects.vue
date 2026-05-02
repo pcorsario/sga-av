@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { dashboard } from '@/routes';
 import coursesRoutes from '@/routes/courses';
 import subjectsRoutes from '@/routes/subjects';
@@ -19,6 +19,18 @@ const props = defineProps<{
 
 const form = useForm({
     subjects: props.assignedIds || [],
+});
+
+const search = ref('');
+
+const filteredSubjects = computed(() => {
+    if (!search.value) {
+        return props.allSubjects;
+    }
+    const query = search.value.toLowerCase();
+    return props.allSubjects.filter(subject => 
+        subject.name.toLowerCase().includes(query)
+    );
 });
 
 const submit = () => {
@@ -126,25 +138,42 @@ defineOptions({
                     </p>
                 </div>
             </div>
-            <button
-                @click="showModal = true"
-                type="button"
-                class="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-bold text-white shadow-md transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                        clip-rule="evenodd"
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Buscador Local -->
+                <div class="relative w-full sm:w-auto">
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Buscar..."
+                        class="w-full rounded-full border-zinc-200 bg-white py-2 pr-10 pl-4 text-xs font-medium shadow-sm transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 sm:w-48"
                     />
-                </svg>
-                Crear Materia Global
-            </button>
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <button
+                    @click="showModal = true"
+                    type="button"
+                    class="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-bold text-white shadow-md transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                    Crear Materia Global
+                </button>
+            </div>
         </div>
 
         <form
@@ -179,7 +208,7 @@ defineOptions({
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label
-                    v-for="subject in allSubjects"
+                    v-for="subject in filteredSubjects"
                     :key="subject.id"
                     class="group relative flex cursor-pointer items-center gap-4 rounded-xl border border-zinc-200 p-4 transition duration-200 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50"
                     :class="{
@@ -202,6 +231,13 @@ defineOptions({
                         >
                     </div>
                 </label>
+            </div>
+
+            <div
+                v-if="filteredSubjects.length === 0 && search"
+                class="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-8 text-center font-medium text-zinc-500 italic dark:border-zinc-800 dark:bg-zinc-800/20 dark:text-zinc-400"
+            >
+                No se encontraron materias que coincidan con "{{ search }}".
             </div>
 
             <div
