@@ -276,6 +276,42 @@ defineOptions({
                     </svg>
                 </div>
             </Link>
+            <Link
+                :href="
+                    route('teaching-load.index', {
+                        current_team: currentTeam?.slug ?? '',
+                    })
+                "
+                class="block rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:border-blue-500/50 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
+            >
+                <h3
+                    class="text-sm font-medium tracking-wider text-zinc-500 uppercase dark:text-zinc-400"
+                >
+                    Carga Horaria
+                </h3>
+                <p
+                    class="mt-2 text-4xl font-extrabold text-zinc-900 dark:text-zinc-50"
+                >
+                    {{ academic.stats.course_subjects_count }}
+                </p>
+                <div
+                    class="mt-4 flex items-center gap-1 text-xs font-medium text-blue-600"
+                >
+                    Asignación masiva
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-3 w-3"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </div>
+            </Link>
         </div>
 
         <!-- Dashboard para Profesor -->

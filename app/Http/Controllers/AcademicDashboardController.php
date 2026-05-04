@@ -23,6 +23,7 @@ class AcademicDashboardController extends Controller
                 'courses_count' => Course::count(),
                 'parents_count' => User::role(RoleEnum::Padre->value)->count(),
                 'subjects_count' => \App\Models\Subject::count(),
+                'course_subjects_count' => \App\Models\CourseSubject::count(),
             ];
         } elseif ($user->hasRole(RoleEnum::Profesor->value)) {
             $data['role'] = 'profesor';

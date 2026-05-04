@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportSettingController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeachingLoadController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Auth;
@@ -108,6 +109,12 @@ Route::prefix('{current_team}')
         Route::resource('teachers', TeacherController::class)
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->parameters(['teachers' => 'teacher']);
+
+        // Carga Horaria Masiva
+        Route::get('teaching-load', [TeachingLoadController::class, 'index'])->name('teaching-load.index');
+        Route::post('teaching-load', [TeachingLoadController::class, 'update'])->name('teaching-load.update');
+        Route::get('teaching-load/export-template', [TeachingLoadController::class, 'exportTemplate'])->name('teaching-load.export-template');
+        Route::post('teaching-load/import', [TeachingLoadController::class, 'importExcel'])->name('teaching-load.import-excel');
     });
 
 Route::middleware(['auth'])->group(function () {
