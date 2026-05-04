@@ -7,6 +7,7 @@ import parentsRoute from '@/routes/parents';
 import students from '@/routes/students';
 import teachers from '@/routes/teachers';
 import subjects from '@/routes/subjects';
+import teachingLoad from '@/routes/teaching-load';
 import type { Team } from '@/types';
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
@@ -278,7 +279,7 @@ defineOptions({
             </Link>
             <Link
                 :href="
-                    route('teaching-load.index', {
+                    teachingLoad.index.url({
                         current_team: currentTeam?.slug ?? '',
                     })
                 "

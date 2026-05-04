@@ -2,6 +2,7 @@
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { dashboard } from '@/routes';
+import teachingLoad from '@/routes/teaching-load';
 import type { Team } from '@/types';
 
 const props = defineProps<{
@@ -35,7 +36,7 @@ const filteredAssignments = computed(() => {
 });
 
 const submit = () => {
-    form.post(route('teaching-load.update', { current_team: props.currentTeam?.slug ?? '' }), {
+    form.post(teachingLoad.update.url({ current_team: props.currentTeam?.slug ?? '' }), {
         preserveScroll: true,
         onSuccess: () => {
             // Optional: Show notification
@@ -49,7 +50,7 @@ const importForm = useForm({
 
 const importExcel = () => {
     if (!importForm.file) return;
-    importForm.post(route('teaching-load.import-excel', { current_team: props.currentTeam?.slug ?? '' }), {
+    importForm.post(teachingLoad.importExcel.url({ current_team: props.currentTeam?.slug ?? '' }), {
         onSuccess: () => {
             importForm.reset();
             window.location.reload();
@@ -91,7 +92,7 @@ defineOptions({
                 <!-- Importar Excel -->
                 <div class="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
                     <a 
-                        :href="route('teaching-load.export-template')"
+                        :href="teachingLoad.exportTemplate.url({ current_team: currentTeam?.slug ?? '' })"
                         class="rounded-xl px-3 py-2 text-xs font-bold text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                     >
                         Descargar Plantilla
