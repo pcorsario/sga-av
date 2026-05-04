@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { dashboard } from '@/routes';
 import teachersRoutes from '@/routes/teachers';
 import type { Team } from '@/types';
@@ -20,6 +20,8 @@ const form = useForm({
     course_subjects: props.assignedIds || [],
 });
 
+const search = ref('');
+
 const submit = () => {
     form.post(
         teachersRoutes.subjects.update.url({
@@ -32,11 +34,24 @@ const submit = () => {
     );
 };
 
-// Group courseSubjects by course name
+// Group courseSubjects by course name with search filter
 const groupedSubjects = computed(() => {
     const groups: Record<string, any[]> = {};
+    const query = search.value.toLowerCase().trim();
+
     props.courseSubjects.forEach((cs) => {
         const courseName = cs.course.name;
+        const subjectName = cs.subject.name;
+
+        // Apply filter if query exists
+        if (query) {
+            const matchesCourse = courseName.toLowerCase().includes(query);
+            const matchesSubject = subjectName.toLowerCase().includes(query);
+
+            if (!matchesCourse && !matchesSubject) {
+                return;
+            }
+        }
 
         if (!groups[courseName]) {
             groups[courseName] = [];
@@ -112,6 +127,35 @@ defineOptions({
                         teacher.name
                     }}</strong>
                 </p>
+            </div>
+
+            <div class="flex flex-1 justify-end">
+                <div class="relative w-full max-w-sm">
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Buscar por curso o materia..."
+                        class="w-full rounded-full border-zinc-200 bg-white py-3 pr-12 pl-6 text-sm font-medium shadow-sm transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                    />
+                    <div
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -218,6 +262,17 @@ defineOptions({
                             </div>
                         </label>
                     </div>
+                </div>
+
+                <div
+                    v-if="Object.keys(groupedSubjects).length === 0"
+                    class="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-12 text-center dark:border-zinc-800 dark:bg-zinc-800/20"
+                >
+                    <p class="font-medium text-zinc-500 italic dark:text-zinc-400">
+                        No se encontraron cursos o materias que coincidan con "{{
+                            search
+                        }}".
+                    </p>
                 </div>
             </div>
 
